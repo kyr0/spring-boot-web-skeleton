@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.base.Predicates;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -20,7 +22,21 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
 @EnableSwagger2
+@AutoConfigurationPackage
 public class Application extends WebMvcConfigurerAdapter {
+
+    @Value("${project.name}")
+    private String projectName;
+    @Value("${project.version}")
+    private String projectVersion;
+    @Value("${project.description}")
+    private String projectDescription;
+    @Value("${project.url}")
+    private String projectUrl;
+    @Value("${project.issueManagement.system}")
+    private String projectIssueManagementSystem;
+    @Value("${project.issueManagement.url}")
+    private String projectIssueManagementUrl;
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -50,10 +66,11 @@ public class Application extends WebMvcConfigurerAdapter {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("SpringBoot Web-Skeleton REST-API")
-                .description("This is a sample boilerplate project, with spring boot.")
-                .license("Apache License Version 2.0")
-                .licenseUrl("https://github.com/kyr0/spring-boot-web-skeleton")
+                .title(projectName + " REST-API")
+                .description(String.format("%s<br/> visit us on <a href=\"%s\">Github</a> (<a href=\"%s\">%s</a>)",projectDescription ,projectUrl,projectIssueManagementUrl, projectIssueManagementSystem))
+                .license("MIT License")
+                .licenseUrl("http://www.opensource.org/licenses/mit-license.php")
+                .version(projectVersion)
                 .build();
     }
 
