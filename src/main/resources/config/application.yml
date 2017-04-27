@@ -1,0 +1,78 @@
+# ===================================================================
+# Spring Boot configuration.
+#
+# This configuration will be overriden by the Spring profile you use,
+# for example application-dev.yml if you use the "dev" profile.
+# ===================================================================
+
+# ===================================================================
+# Standard Spring Boot properties.
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# ===================================================================
+
+# Actuator configuaration
+endpoints:
+    actuator:
+      enabled: false
+    enabled: false
+
+spring:
+    application:
+        name: spring-boot-web-skeleton
+    profiles:
+        # The commented value for `active` can be replaced with valid Spring profiles to load.
+        # Otherwise, it will be filled in by maven when building the WAR file
+        # Either way, it can be overridden by `--spring.profiles.active` value passed in the commandline or `-Dspring.profiles.active` set in `JAVA_OPTS`
+        active: #spring.profiles.active#
+    jpa:
+        open-in-view: false
+        hibernate:
+            ddl-auto: none
+            naming:
+                physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+                implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+    messages:
+        basename: i18n/messages
+
+security:
+    basic:
+        enabled: false
+
+server:
+    session:
+        cookie:
+            http-only: true
+            # TODO: secure: true
+
+info:
+    project:
+        version: #project.version#
+
+# ===================================================================
+# Application specific properties
+# Add your own application properties here, see the ApplicationProperties class
+# to have type-safe configuration, like in the sections above
+# ===================================================================
+
+application:
+
+    project:
+        name: spring-boot-web-skeleton
+        version: 0.0.1-SNAPSHPOT,
+        license:
+            name: MIT License
+            url: http://www.opensource.org/licenses/mit-license.php
+        url: https://github.com/kyr0/spring-boot-web-skeleton
+        description: Skeleton implementation for enterprise web applications following best practices.
+        issueManagement:
+            url: https://github.com/kyr0/spring-boot-web-skeleton/issues
+            system: GitHub Issues
+
+    http:
+        version: V_1_1
+
+    cache: # Cache configuration
+        ehcache: # Ehcache configuration
+            time-to-live-seconds: 3600 # By default objects stay 1 hour in the cache
+            max-entries: 100 # Number of objects in each cache entry

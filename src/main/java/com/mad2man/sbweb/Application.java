@@ -5,12 +5,19 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.base.Predicates;
-import org.springframework.beans.factory.annotation.Value;
+import com.mad2man.sbweb.config.ApplicationProperties;
+import com.mad2man.sbweb.config.Profiles;
+import com.mad2man.sbweb.util.DefaultProfileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -20,30 +27,71 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import javax.annotation.PostConstruct;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Collection;
+
 @SpringBootApplication
 @EnableSwagger2
-@AutoConfigurationPackage
+@ComponentScan
+@EnableConfigurationProperties({LiquibaseProperties.class, ApplicationProperties.class})
 public class Application extends WebMvcConfigurerAdapter {
 
-    @Value("${project.name}")
-    private String projectName;
-    @Value("${project.version}")
-    private String projectVersion;
-    @Value("${project.description}")
-    private String projectDescription;
-    @Value("${project.url}")
-    private String projectUrl;
-    @Value("${project.issueManagement.system}")
-    private String projectIssueManagementSystem;
-    @Value("${project.issueManagement.url}")
-    private String projectIssueManagementUrl;
+    private static final Logger log = LoggerFactory.getLogger(Application.class);
 
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+    private final Environment env;
+    private ApplicationProperties applicationProperties;
+
+    public static void main(String[] args) throws UnknownHostException {
+
+        SpringApplication app = new SpringApplication(Application.class);
+        DefaultProfileUtil.addDefaultProfile(app);
+
+        Environment env = app.run(args).getEnvironment();
+
+        String protocol = "http";
+
+        if (env.getProperty("server.ssl.key-store") != null) {
+            protocol = "https";
+        }
+
+        log.info("\n----------------------------------------------------------\n\t" +
+                        "Application '{}' is running! Access URLs:\n\t" +
+                        "Local: \t\t{}://localhost:{}\n\t" +
+                        "External: \t{}://{}:{}\n\t" +
+                        "Profile(s): \t{}\n----------------------------------------------------------",
+                env.getProperty("spring.application.name"),
+                protocol,
+                env.getProperty("server.port"),
+                protocol,
+                InetAddress.getLocalHost().getHostAddress(),
+                env.getProperty("server.port"),
+                env.getActiveProfiles());
     }
 
+    public Application(Environment env, ApplicationProperties applicationProperties) {
+
+        this.env = env;
+        this.applicationProperties = applicationProperties;
+    }
+
+    @PostConstruct
+    public void initApplication() {
+
+        Collection<String> activeProfiles = Arrays.asList(env.getActiveProfiles());
+
+        if (activeProfiles.contains(Profiles.PROFILE_DEVELOPMENT) &&
+            activeProfiles.contains(Profiles.PROFILE_PRODUCTION)) {
+
+            log.error("You have mis-configured your application! It should not run " +
+                    "with both the 'dev' and 'prod' profiles at the same time.");
+        }
+    }
     @Bean
     public Docket swaggerSpringMvcPlugin() {
+
         return new Docket(DocumentationType.SWAGGER_2)
                 .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo())
@@ -56,6 +104,7 @@ public class Application extends WebMvcConfigurerAdapter {
     @Primary
     public class CustomObjectMapper extends ObjectMapper {
         public CustomObjectMapper() {
+
             setSerializationInclusion(JsonInclude.Include.NON_NULL);
             configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
             configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
@@ -65,12 +114,17 @@ public class Application extends WebMvcConfigurerAdapter {
     }
 
     private ApiInfo apiInfo() {
+
         return new ApiInfoBuilder()
-                .title(projectName + " REST-API")
-                .description(String.format("%s<br/> visit us on <a href=\"%s\">Github</a> (<a href=\"%s\">%s</a>)",projectDescription ,projectUrl,projectIssueManagementUrl, projectIssueManagementSystem))
-                .license("MIT License")
-                .licenseUrl("http://www.opensource.org/licenses/mit-license.php")
-                .version(projectVersion)
+                .title(applicationProperties.getProject().getName() + " REST-API")
+                .description(String.format("%s<br/> visit us on <a href=\"%s\">Github</a> (<a href=\"%s\">%s</a>)",
+                    applicationProperties.getProject().getDescription(),
+                    applicationProperties.getProject().getUrl(),
+                    applicationProperties.getProject().getIssueManagement().getUrl(),
+                    applicationProperties.getProject().getIssueManagement().getSystem()))
+                .license(applicationProperties.getProject().getLicense().getName())
+                .licenseUrl(applicationProperties.getProject().getLicense().getUrl())
+                .version(applicationProperties.getProject().getVersion())
                 .build();
     }
 
