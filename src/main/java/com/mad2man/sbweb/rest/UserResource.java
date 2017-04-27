@@ -1,18 +1,16 @@
 package com.mad2man.sbweb.rest;
 
-import com.mad2man.sbweb.repository.UserRepository;
 import com.mad2man.sbweb.rest.model.UserModel;
 import com.mad2man.sbweb.rest.util.PaginationUtil;
 import com.mad2man.sbweb.service.UserService;
 import com.mad2man.sbweb.service.dto.UserDTO;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,12 +29,11 @@ public class UserResource {
 
     private final Logger log = LoggerFactory.getLogger(UserResource.class);
 
-    private final UserRepository userRepository;
 
     private final UserService userService;
 
-    public UserResource(UserRepository userRepository, UserService userService) {
-        this.userRepository = userRepository;
+    @Autowired
+    public UserResource(UserService userService) {
         this.userService = userService;
     }
 
@@ -44,7 +41,6 @@ public class UserResource {
      * Get all users.
      * GET  /users : get all users.
      *
-     * @param pageable the pagination information
      * @return the ResponseEntity with status 200 (OK) and with body all users
      */
     @ApiOperation(notes = "returns all users paginated", value = "find all users", response = UserModel.class,

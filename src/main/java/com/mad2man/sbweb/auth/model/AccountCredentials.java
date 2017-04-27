@@ -1,8 +1,5 @@
 package com.mad2man.sbweb.auth.model;
 
-/**
- * Created by Mansi on 27.04.2017.
- */
 public class AccountCredentials {
 
     private String username;

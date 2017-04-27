@@ -10,9 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.Date;
 
-/**
- * Created by Mansi on 27.04.2017.
- */
 public class TokenAuthenticationService {
     private static final long EXPIRATION_TIME = 864_000_000; // 10 days
     private static final String SECRET = "ThisIsASecret";
