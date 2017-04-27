@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class UserResource {
-
+    @PreAuthorize("isAuthenticated()")
     @ApiOperation(notes = "returns a user queried by user id", value = "find user by ID", response = UserModel.class,
             tags = {"user"}, authorizations = {
             @Authorization(value = "petstore_auth", scopes = {
