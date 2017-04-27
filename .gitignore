@@ -70,5 +70,16 @@ target
 
 src/main/resources/application.properties
 
-src/main/webapp/libs/node
-src/main/webapp/libs/node_modules
+######################
+# Node
+######################
+node/
+node_tmp/
+node_modules/
+npm-debug.log.*
+
+
+######################
+# SASS
+######################
+.sass-cache/
