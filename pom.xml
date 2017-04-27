@@ -35,91 +35,319 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
         <java.version>1.8</java.version>
+        <maven.min.version>3.1.0</maven.min.version>
+        <maven.enforcer.plugin.version>1.4.1</maven.enforcer.plugin.version>
+
+        <!-- Libraries -->
+        <javassist.version>3.21.0-GA</javassist.version>
+        <jackson.core.version>2.8.8</jackson.core.version>
+
+        <spring.boot.version>1.5.3.RELEASE</spring.boot.version>
+
+        <postgresql.client.verision>9.4.1212</postgresql.client.verision>
+
+        <swagger.springfox.version>2.6.1</swagger.springfox.version>
+
+        <hikaricp.version>2.6.0</hikaricp.version>
+
+        <hibernate.version>5.2.8.Final</hibernate.version>
+        <hibernate.jcache.version>5.2.10.Final</hibernate.jcache.version>
+        <hibernate.validator.version>5.4.1.Final</hibernate.validator.version>
+
+        <liquibase.core.version>3.5.3</liquibase.core.version>
+        <liquibase.hibernate.version>3.6</liquibase.hibernate.version>
+        <liquibase.slf4j.version>2.0.0</liquibase.slf4j.version>
+        <javax.validation.api.version>1.1.0.Final</javax.validation.api.version>
+        <ehcache.version>3.3.1</ehcache.version>
+
+        <!-- Test libraries -->
+        <test.junit.version>4.12</test.junit.version>
+
+        <!-- Backend build tools -->
+        <build.tools.frontend-maven-plugin.version>1.4</build.tools.frontend-maven-plugin.version>
+        <build.tools.resources.plugin>2.6</build.tools.resources.plugin>
+        <build.tools.compiler.plugin.version>3.6.0</build.tools.compiler.plugin.version>
+        <build.tools.mapstruct.version>1.1.0.Final</build.tools.mapstruct.version>
+
+        <!-- Frontend build tools (auto-install using maven) -->
+        <build.tools.yarn.version>0.22.0</build.tools.yarn.version>
+        <build.tools.node.version>6.10.2</build.tools.node.version>
+
+
     </properties>
 
     <dependencies>
+
+        <!-- Jackson based JSON support.
+             See: https://github.com/FasterXML/jackson -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-hibernate5</artifactId>
+            <version>${jackson.core.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-hppc</artifactId>
+            <version>${jackson.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-json-org</artifactId>
+            <version>${jackson.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson.core.version}</version>
+        </dependency>
+
+        <!-- This meta-dependency includes all required spring boot's core dependencies.
+             See: https://github.com/spring-projects/spring-boot/tree/master/spring-boot-starters/spring-boot-starter-web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
+
+        <!-- Undertow high performance web-server.
+             See: http://undertow.io/ -->
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>9.4.1212</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-undertow</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
+
+        <!-- Actuator includes a number of additional features to help you monitor and manage your application -->
+        <!-- See: https://github.com/spring-projects/spring-boot/tree/master/spring-boot-actuator -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+            <version>${spring.boot.version}</version>
+        </dependency>
+
+        <!-- Java annotation processor which is invoked as the project is compiled.
+             Maps configuration values to beans via annotations thru mapstruct (see below)-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+            <version>${spring.boot.version}</version>
+        </dependency>
+
+        <!-- This meta-dependency includes all required spring boot's data/JPA dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
+
+        <!-- Standard cache API
+             See: https://static.javadoc.io/javax.cache/cache-api/1.0.0/javax/cache/package-summary.html -->
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
+        </dependency>
+
+        <!-- PostgreSQL database client library
+             See: https://github.com/pgjdbc/pgjdbc -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.client.verision}</version>
+        </dependency>
+
+        <!-- High performance DataSource implementation with connection pooling.
+             See: http://brettwooldridge.github.io/HikariCP/ -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
+
+        <!-- Hibernate ORM
+             See: https://github.com/hibernate/hibernate-orm -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-envers</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+
+        <!-- jcache bridge 2nd level query cache for hibernate
+             See: https://github.com/hibernate/hibernate-orm/tree/master/hibernate-jcache -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-jcache</artifactId>
+            <version>${hibernate.jcache.version}</version>
+        </dependency>
+
+        <!-- Liquibase database revisioning system
+             See: https://github.com/liquibase/liquibase
+             And see: http://www.liquibase.org/ -->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${liquibase.core.version}</version>
+        </dependency>
+
+        <!-- liquibase bridge for use with Hibernate 5
+             See: https://github.com/liquibase/liquibase-hibernate -->
+        <dependency>
+            <groupId>org.liquibase.ext</groupId>
+            <artifactId>liquibase-hibernate5</artifactId>
+            <version>${liquibase.hibernate.version}</version>
+        </dependency>
+
+        <!-- ehcache for database and application level caching using JCache API
+             See: http://www.ehcache.org/ -->
+        <dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>${ehcache.version}</version>
+        </dependency>
+
+        <!-- Make liquibase send logs to SLF4J logging facade (wires to logback of Spring Boot).
+             See: https://www.slf4j.org/
+             And see: https://github.com/mattbertolini/liquibase-slf4j -->
+        <dependency>
+            <groupId>com.mattbertolini</groupId>
+            <artifactId>liquibase-slf4j</artifactId>
+            <version>${liquibase.slf4j.version}</version>
+        </dependency>
+
+        <!-- Java bean mappings at compile time. Uses plain method invocations
+             See: mapstruct.org -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-jdk8</artifactId>
+            <version>${build.tools.mapstruct.version}</version>
+        </dependency>
+
+        <!-- Automated JSON API documentation for API's built with Spring.
+             See: http://springfox.github.io/springfox/ -->
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
-            <version>LATEST</version>
+            <version>${swagger.springfox.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>mapstruct</artifactId>
+                    <groupId>org.mapstruct</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
+        <!-- To create a webjar containing the swagger-ui static content
+             See: https://github.com/springfox/springfox/tree/master/springfox-swagger-ui -->
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
-            <version>LATEST</version>
+            <version>${swagger.springfox.version}</version>
         </dependency>
 
-
+        <!-- JUnit test framework
+             See: https://github.com/junit-team/junit4/wiki/Getting-started -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>${test.junit.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
+        <defaultGoal>spring-boot:run</defaultGoal>
+
         <plugins>
+
+            <!-- Enforce specific environment tooling versions -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven.enforcer.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce-versions</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <rules>
+                        <requireMavenVersion>
+                            <message>You are running an older version of Maven. Skeleton requires at least Maven ${maven.min.version}</message>
+                            <version>[${maven.min.version},)</version>
+                        </requireMavenVersion>
+                        <requireJavaVersion>
+                            <message>You are running an older version of Java. Skeleton requires at least JDK ${java.version}</message>
+                            <version>[${java.version}.0,)</version>
+                        </requireJavaVersion>
+                    </rules>
+                </configuration>
+            </plugin>
+
+            <!-- package executable jar or war archives and run an application “in-place” -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <!--
+                    Enable the line below to have remote debugging of your application on port 5005
+                    <jvmArguments>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</jvmArguments>
+                    -->
+                </configuration>
+
                 <executions>
                     <execution>
                         <goals>
+                            <!-- Repackages existing JAR so that it can be executed using java -jar -->
                             <goal>repackage</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Installs yarn package manager (see yarnpkg.com) and installs all node dependencies in
+                 generate-resource phase. Node dependencies are declared in src/main/webapp/libs/package.json -->
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
                 <configuration>
                     <workingDirectory>src/main/webapp/libs</workingDirectory>
                 </configuration>
-                <version>1.1</version>
+                <version>${build.tools.frontend-maven-plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>install-node-npm</id>
+                        <id>install-node-and-yarn</id>
                         <goals>
-                            <goal>install-node-and-npm</goal>
+                            <goal>install-node-and-yarn</goal>
                         </goals>
+                        <phase>generate-resources</phase>
                         <configuration>
-                            <nodeVersion>v0.10.32</nodeVersion>
-                            <npmVersion>2.1.8</npmVersion>
+                            <nodeVersion>v${build.tools.node.version}</nodeVersion>
+                            <yarnVersion>v${build.tools.yarn.version}</yarnVersion>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm-install-modules</id>
+                        <id>yarn install</id>
                         <goals>
-                            <goal>npm</goal>
+                            <goal>yarn</goal>
                         </goals>
+                        <configuration>
+                            <arguments>install --force</arguments>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Handles the copying of project resources from webapp to static content
+                 output directory excluding  -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.6</version>
+                <version>${build.tools.resources.plugin}</version>
                 <executions>
+
                     <execution>
                         <id>copy-resources</id>
                         <phase>validate</phase>
@@ -129,6 +357,10 @@
                         <configuration>
                             <encoding>UTF-8</encoding>
                             <nonFilteredFileExtensions>
+                                <nonFilteredFileExtension>svg</nonFilteredFileExtension>
+                                <nonFilteredFileExtension>woff2</nonFilteredFileExtension>
+                                <nonFilteredFileExtension>woff</nonFilteredFileExtension>
+                                <nonFilteredFileExtension>eot</nonFilteredFileExtension>
                                 <nonFilteredFileExtension>ttf</nonFilteredFileExtension>
                                 <nonFilteredFileExtension>ico</nonFilteredFileExtension>
                             </nonFilteredFileExtensions>
@@ -144,9 +376,72 @@
                             </resources>
                         </configuration>
                     </execution>
+
                 </executions>
+
             </plugin>
+
+            <!-- Process annotation mappings using mapstruct -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${build.tools.compiler.plugin.version}</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${build.tools.mapstruct.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
+            <!-- Run liquibase -->
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>${liquibase.core.version}</version>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>javax.validation</groupId>
+                        <artifactId>validation-api</artifactId>
+                        <version>${javax.validation.api.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.javassist</groupId>
+                        <artifactId>javassist</artifactId>
+                        <version>${javassist.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.liquibase.ext</groupId>
+                        <artifactId>liquibase-hibernate5</artifactId>
+                        <version>${liquibase.hibernate.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-data-jpa</artifactId>
+                        <version>${spring.boot.version}</version>
+                    </dependency>
+                </dependencies>
+
+                <configuration>
+                    <changeLogFile>src/main/resources/config/liquibase/master.xml</changeLogFile>
+                    <diffChangeLogFile>src/main/resources/config/liquibase/changelog/${maven.build.timestamp}_changelog.xml</diffChangeLogFile>
+                    <driver>org.postgresql.Driver</driver>
+                    <url>jdbc:postgresql://localhost:5432/skeleton</url>
+                    <defaultSchemaName />
+                    <username>skeleton</username>
+                    <password />
+                    <referenceUrl>hibernate:spring:com.mad2man.sbweb.domain?dialect=com.mad2man.sbweb.config.FixedPostgreSQL82Dialect&amp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
+                    <verbose>true</verbose>
+                    <logging>debug</logging>
+                </configuration>
+            </plugin>
+
         </plugins>
+
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -155,5 +450,70 @@
         </resources>
     </build>
 
+    <profiles>
+
+        <!-- development profile using undertow embedded web-server and devtools -->
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <!-- log configuration -->
+                <logback.loglevel>DEBUG</logback.loglevel>
+                <!-- default Spring profiles -->
+                <spring.profiles.active>dev</spring.profiles.active>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-devtools</artifactId>
+                    <version>${spring.boot.version}</version>
+                    <optional>true</optional>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- production profile -->
+        <profile>
+            <id>prod</id>
+
+            <properties>
+                <!-- log configuration -->
+                <logback.loglevel>INFO</logback.loglevel>
+                <!-- default Spring profiles -->
+                <spring.profiles.active>prod</spring.profiles.active>
+            </properties>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-clean-plugin</artifactId>
+                        <configuration>
+                            <filesets>
+                                <fileset>
+                                    <directory>target/www/</directory>
+                                </fileset>
+                            </filesets>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>build-info</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <executable>true</executable>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
