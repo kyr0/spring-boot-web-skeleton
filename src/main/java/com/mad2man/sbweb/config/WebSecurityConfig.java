@@ -1,6 +1,5 @@
 package com.mad2man.sbweb.config;
 
-import com.mad2man.sbweb.auth.encoder.SkeletonPasswordEncoder;
 import com.mad2man.sbweb.auth.filter.JWTAuthenticationFilter;
 import com.mad2man.sbweb.auth.filter.JWTLoginFilter;
 import com.mad2man.sbweb.auth.service.SkeletonUserDetailService;
@@ -14,6 +13,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -41,7 +41,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new SkeletonPasswordEncoder();
+        return new BCryptPasswordEncoder();
     }
 
     @Override
