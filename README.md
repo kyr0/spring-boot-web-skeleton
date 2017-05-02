@@ -35,9 +35,111 @@ Either:
 
 Or using the IDE.
  
-## How to generate a nice title for banner.txt?
+## Integration
+
+### How to generate a nice title for banner.txt?
 
 [Use patorjk.com ASCII art generator](http://patorjk.com/software/taag/#p=display&h=0&v=0&w=%20&f=ANSI%20Shadow&t=%20s%20k%20e%20l%20e%20t%20o%20n)
+
+## API Usage
+
+To give you a short introduction, here are some examples of how to use the User and Roles API.
+
+### Login: `POST /api/auth/login
+
+This API resource is publicly available and can be called by anonymous users.
+
+Please take a look at `users.csv` for the users available. Username == Password.
+
+    curl -X POST -H "Content-Type: application/json" -H "Cache-Control: no-cache" -d '{  
+        "username": "user",
+        "password": "user"
+    }' "http://localhost:8080/api/auth/login"
+
+If you provide a *valid username/password combination*, the response should look like:
+
+    {
+      "token" : "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyIiwic2NvcGVzIjpbIlJPTEVfVVNFUiJdLCJpc3MiOiJzcHJpbmctYm9vdC13ZWItc2tlbGV0b24iLCJpYXQiOjE0OTM3NTkxNjQsImV4cCI6MTQ5Mzc2MDA2NH0.YhWhdQsYcrnVRUN96BNXQXr0OxyWGLlegT3aeN-bZivMWyE8XLXJ2pFqGIgmQtCwtE-cZDmfjuheO5gNFYhv7Q",
+      "refreshToken" : "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyIiwic2NvcGVzIjpbIlJPTEVfUkVGUkVTSF9UT0tFTiJdLCJpc3MiOiJzcHJpbmctYm9vdC13ZWItc2tlbGV0b24iLCJqdGkiOiJlZjY3YWU0OS01NzY2LTRmNWQtYjVkNS1iMzNhYjgxZjI3NWUiLCJpYXQiOjE0OTM3NTkxNjUsImV4cCI6MTQ5Mzc2Mjc2NX0.lGOEzhU8HSHR91pPgvNtT-eqiF4acdmANL0Br5gnlWVC4VhTqK0YoGLZz_64iRg0Sf-1SXd-t_LUcTopMYJirA"
+    }
+    
+In case of *invalid user credentials*, status 401 looks like:
+ 
+     {
+       "status" : 401,
+       "message" : "Invalid username or password",
+       "errorCode" : 10,
+       "timestamp" : "2017-05-02T21:07:42.453+0000"
+     }
+    
+> ##### Authorization header
+> Please note that for any further request that points to an API method of access scope other than [anonymous], you should provide the HTTP header Authorization: Bearer ${token}
+    
+### Logout: `POST /api/auth/logout`
+
+In order to actively log-out:
+
+
+## Concepts and Design Decisions
+
+Before you start using Spring Boot web skeleto, please take the following design decisions into consideration:
+
+### Security
+
+#### Authentication process
+
+We were looking for a lightweight, easy to understand, yet secure way for Authentication and Authorization.
+
+Therefore we decided to go for JSON Web Tokens (JWT) in order to provide a token based authentication.
+
+Wen an initial login request to the public resource `POST /api/auth/login` provides valid username and password credentials,
+
+    {
+        "username": "foo",
+        "password": "bar",
+        "rememberMe": true
+    }
+
+a JWT token is returned using the `Authorization` HTTP response header. 
+
+> ##### DO use HTTPS!
+> Since user login credentials are transmitted between client and server in plain-text JSON, you MUST deploy HTTPS in order to protect against Man-in-the-middle (MITM) attacks. It's easy to set up and free of charge when using [LetsEncrypt](https://letsencrypt.org).
+
+Next to the JWT standard claims, the token payload contains only the username as a custom claim.
+
+All tokens are signed and encrypted with a secret key that is defined for the scope of the whole application (`application.security.authorization.jwt.secret-key`).
+
+> ##### Please note
+> This secret key MUST be changed prior to a production deployment and MUST remain a secret. The secret key MUST NEVER be exposed.
+
+#### Stateless tokens
+
+Since the whole architecture is service-oriented, there is no such thing like a stateful user session. The Authorization process happens on every API request and the JWT token itself contains the username safely encrypted. 
+
+Such tokens can be issued and verified by multiple instances of the application sharing the same secret key. However, access to the same database is requested by any application instance in order to look up the same User Repository.
+
+#### Token expiration (or: login time-frame)
+
+Tokens expire after a configurable validity time (`application.security.authorization.jwt.token-validity-in-seconds`). However, the token is refreshed automatically on every authorized API method call. 
+
+In consequence, API users stay logged-in until they don't call any API method for as long as the validity time is set or the method `POST /api/auth/logout` is called.
+
+### Authorization process
+
+The Authorization process extends the Authentication process by a fine-grained control over which User should be allowed to execute what functionality.
+
+In this implementation, this is covered by an implementation of a User to Role relation. You can grant many Roles to many Users (n:m relation).
+
+Users and Roles data can be seeded using `users.csv`, `roles.csv` and `users_roles.csv` for defining the relations by id.
+
+To protect API methods from being available without prior login or to check that certain Roles are granted to the User, just annotate methods using `@PreAuthorize` and provide an Expression-Based Access Control rule:
+
+    @PreAuthorize("hasRole('USER') and hasRole('MANAGER')")
+ 
+> ##### Expression based authorization
+> If you are not familiar with SpEL and the power of Spring Security 3 expressions, please [read on...](https://dzone.com/refcardz/expression-based-authorization)
+ 
+### 
 
 ## Roadmap / TODO's
 
