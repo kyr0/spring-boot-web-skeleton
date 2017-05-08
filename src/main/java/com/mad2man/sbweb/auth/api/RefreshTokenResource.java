@@ -10,7 +10,7 @@ import com.mad2man.sbweb.auth.model.token.JwtTokenFactory;
 import com.mad2man.sbweb.auth.model.token.RawAccessJwtToken;
 import com.mad2man.sbweb.auth.model.token.RefreshToken;
 import com.mad2man.sbweb.config.JwtConfig;
-import com.mad2man.sbweb.entity.User;
+import com.mad2man.sbweb.entity.UserEntity;
 import com.mad2man.sbweb.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -63,14 +63,17 @@ public class RefreshTokenResource {
         }
 
         String subject = refreshToken.getSubject();
-        User user = userService.findByUsername(subject).orElseThrow(() -> new UsernameNotFoundException("User not found: " + subject));
+        UserEntity userEntity = userService.findByUsername(subject).orElseThrow(() -> new UsernameNotFoundException("UserEntity not found: " + subject));
 
-        if (user.getRoles() == null) throw new InsufficientAuthenticationException("User has no roles assigned");
-        List<GrantedAuthority> authorities = user.getRoles().stream()
+        if (userEntity.getRoles() == null) throw new InsufficientAuthenticationException("UserEntity has no roles assigned");
+        List<GrantedAuthority> authorities = userEntity.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toList());
 
-        UserContext userContext = UserContext.create(user.getUsername(), authorities);
+
+
+
+        UserContext userContext = UserContext.create(userEntity.getUsername(), authorities);
 
         return tokenFactory.createAccessJwtToken(userContext);
     }

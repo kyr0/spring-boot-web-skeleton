@@ -8,6 +8,10 @@ import com.mad2man.sbweb.auth.filter.LoginProcessingFilter;
 import com.mad2man.sbweb.auth.jwt.JwtAuthenticationProvider;
 import com.mad2man.sbweb.auth.jwt.extractor.TokenExtractor;
 import com.mad2man.sbweb.auth.jwt.filter.JwtTokenAuthenticationProcessingFilter;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +32,9 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity
+@Getter
+@Setter
+@NoArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     public static final String LOGIN_ENDPOINT = "/api/auth/login";
@@ -42,42 +49,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired private TokenExtractor tokenExtractor;
     @Autowired private AuthenticationManager authenticationManager;
     @Autowired private ObjectMapper objectMapper;
-
-    public WebSecurityConfig() {
-    }
-
-    public CustomAuthenticationProvider getCustomAuthenticationProvider() {
-        return customAuthenticationProvider;
-    }
-
-    public JwtAuthenticationProvider getJwtAuthenticationProvider() {
-        return jwtAuthenticationProvider;
-    }
-
-    public RestAuthenticationEntryPoint getAuthenticationEntryPoint() {
-        return authenticationEntryPoint;
-    }
-
-    public AuthenticationSuccessHandler getSuccessHandler() {
-        return successHandler;
-    }
-
-    public AuthenticationFailureHandler getFailureHandler() {
-        return failureHandler;
-    }
-
-    public TokenExtractor getTokenExtractor() {
-        return tokenExtractor;
-    }
-
-    public AuthenticationManager getAuthenticationManager() {
-        return authenticationManager;
-    }
-
-    public ObjectMapper getObjectMapper() {
-        return objectMapper;
-    }
-
 
     protected LoginProcessingFilter buildLoginProcessingFilter() throws Exception {
         LoginProcessingFilter filter = new LoginProcessingFilter(LOGIN_ENDPOINT, successHandler, failureHandler, objectMapper);

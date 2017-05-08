@@ -2,6 +2,9 @@ package com.mad2man.sbweb.config;
 
 import com.mad2man.sbweb.common.Profiles;
 import com.mad2man.sbweb.common.filter.CachingHttpHeadersFilter;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
@@ -25,6 +28,8 @@ import java.util.EnumSet;
  */
 @Configuration
 @ConfigurationProperties("web")
+@Getter
+@Setter
 public class WebConfig implements ServletContextInitializer, EmbeddedServletContainerCustomizer {
 
     private final Logger log = LoggerFactory.getLogger(WebConfig.class);
@@ -115,23 +120,5 @@ public class WebConfig implements ServletContextInitializer, EmbeddedServletCont
         cachingHttpHeadersFilter.addMappingForUrlPatterns(disps, true, "/content/*");
         cachingHttpHeadersFilter.addMappingForUrlPatterns(disps, true, "/app/*");
         cachingHttpHeadersFilter.setAsyncSupported(true);
-    }
-
-
-    public String getHttpVersion() {
-        return httpVersion;
-    }
-
-    public void setHttpVersion(String httpVersion) {
-        this.httpVersion = httpVersion;
-    }
-
-    public long getCacheTimeToLiveInDays() {
-        return cacheTimeToLiveInDays;
-    }
-
-
-    public void setCacheTimeToLiveInDays(long cacheTimeToLiveInDays) {
-        this.cacheTimeToLiveInDays = cacheTimeToLiveInDays;
     }
 }

@@ -1,6 +1,9 @@
 package com.mad2man.sbweb.config;
 
 import com.google.common.base.Predicates;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +15,8 @@ import springfox.documentation.spring.web.plugins.Docket;
 
 @Configuration
 @ConfigurationProperties(prefix = "documentation")
+@Getter
+@Setter
 public class DocumentationConfig {
 
     private String title;
@@ -40,45 +45,5 @@ public class DocumentationConfig {
             .licenseUrl(licenseUrl)
             .version(version)
             .build();
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getLicense() {
-        return license;
-    }
-
-    public void setLicense(String license) {
-        this.license = license;
-    }
-
-    public String getLicenseUrl() {
-        return licenseUrl;
-    }
-
-    public void setLicenseUrl(String licenseUrl) {
-        this.licenseUrl = licenseUrl;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
     }
 }

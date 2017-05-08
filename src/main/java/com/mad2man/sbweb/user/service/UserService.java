@@ -1,8 +1,8 @@
 package com.mad2man.sbweb.user.service;
 
-import com.mad2man.sbweb.entity.User;
+import com.mad2man.sbweb.entity.UserEntity;
+import com.mad2man.sbweb.user.aggregate.ManagedUserAggregate;
 import com.mad2man.sbweb.user.repository.UserRepository;
-import com.mad2man.sbweb.user.service.dto.ManagedUserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,12 +26,12 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ManagedUserDTO> getAllManagedUsers(Pageable pageable) {
-        return userRepository.findAllByUsernameNot(pageable, User.ANONYMOUS_USER).map(ManagedUserDTO::new);
+    public Page<ManagedUserAggregate> getAllManagedUsers(Pageable pageable) {
+        return userRepository.findAllByUsernameNot(pageable, UserEntity.ANONYMOUS_USER).map(ManagedUserAggregate::new);
     }
 
     @Transactional(readOnly = true)
-    public Optional<User> findByUsername(String username) {
+    public Optional<UserEntity> findByUsername(String username) {
         return userRepository.findOneByUsername(username);
     }
 }
