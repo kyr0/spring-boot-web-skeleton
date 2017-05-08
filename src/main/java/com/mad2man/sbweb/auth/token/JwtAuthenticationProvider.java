@@ -1,4 +1,4 @@
-package com.mad2man.sbweb.auth.jwt;
+package com.mad2man.sbweb.auth.token;
 
 import com.mad2man.sbweb.auth.model.UserContext;
 import com.mad2man.sbweb.auth.model.token.JwtToken;
@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 @Component
 @SuppressWarnings("unchecked")
 public class JwtAuthenticationProvider implements AuthenticationProvider {
+
     private final JwtConfig jwtConfig;
 
     @Autowired
@@ -33,11 +34,15 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+
         RawAccessJwtToken rawAccessToken = (RawAccessJwtToken) authentication.getCredentials();
 
         Jws<Claims> jwsClaims = rawAccessToken.parseClaims(jwtConfig.getTokenSigningKey());
+
         String subject = jwsClaims.getBody().getSubject();
-        List<String> scopes = jwsClaims.getBody().get("scopes", List.class);
+
+        List<String> scopes = jwsClaims.getBody().get(JwtToken.CLAIM_SCOPES, List.class);
+
         List<GrantedAuthority> authorities = scopes.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());

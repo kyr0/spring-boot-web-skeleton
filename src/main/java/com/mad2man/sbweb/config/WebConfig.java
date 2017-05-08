@@ -2,7 +2,6 @@ package com.mad2man.sbweb.config;
 
 import com.mad2man.sbweb.common.Profiles;
 import com.mad2man.sbweb.common.filter.CachingHttpHeadersFilter;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;

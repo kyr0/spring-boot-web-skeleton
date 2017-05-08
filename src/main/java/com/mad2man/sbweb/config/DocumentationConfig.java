@@ -1,7 +1,6 @@
 package com.mad2man.sbweb.config;
 
 import com.google.common.base.Predicates;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;

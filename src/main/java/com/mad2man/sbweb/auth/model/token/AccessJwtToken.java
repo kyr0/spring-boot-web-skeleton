@@ -1,23 +1,22 @@
 package com.mad2man.sbweb.auth.model.token;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.jsonwebtoken.Claims;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+
+import java.util.Date;
 
 
 /**
  * Raw representation of JWT Token.
  */
 @Data
+@AllArgsConstructor
 public final class AccessJwtToken implements JwtToken {
 
     private final String token;
 
-    // claims not be be exported
-    @JsonIgnore private Claims claims;
+    private final Claims claims;
 
-    protected AccessJwtToken(final String token, Claims claims) {
-        this.token = token;
-        this.claims = claims;
-    }
+    private final Date expiration;
 }

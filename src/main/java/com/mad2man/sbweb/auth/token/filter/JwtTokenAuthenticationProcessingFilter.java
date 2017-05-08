@@ -1,9 +1,9 @@
-package com.mad2man.sbweb.auth.jwt.filter;
+package com.mad2man.sbweb.auth.token.filter;
 
-import com.mad2man.sbweb.auth.jwt.JwtAuthenticationToken;
-import com.mad2man.sbweb.auth.jwt.Header;
-import com.mad2man.sbweb.auth.jwt.extractor.TokenExtractor;
+import com.mad2man.sbweb.auth.model.token.JwtToken;
 import com.mad2man.sbweb.auth.model.token.RawAccessJwtToken;
+import com.mad2man.sbweb.auth.token.JwtAuthenticationToken;
+import com.mad2man.sbweb.auth.token.extractor.TokenExtractor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
@@ -27,7 +27,7 @@ public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticati
     private final TokenExtractor tokenExtractor;
 
     public JwtTokenAuthenticationProcessingFilter(AuthenticationFailureHandler failureHandler,
-            TokenExtractor tokenExtractor, RequestMatcher matcher) {
+                                                  TokenExtractor tokenExtractor, RequestMatcher matcher) {
 
         super(matcher);
 
@@ -39,7 +39,7 @@ public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticati
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException, IOException, ServletException {
 
-        String tokenPayload = request.getHeader(Header.HTTP_AUTHORIZATION_HEADER_NAME);
+        String tokenPayload = request.getHeader(JwtToken.HTTP_AUTHORIZATION_HEADER_NAME);
         RawAccessJwtToken token = new RawAccessJwtToken(tokenExtractor.extract(tokenPayload));
 
         return getAuthenticationManager().authenticate(new JwtAuthenticationToken(token));
@@ -51,14 +51,18 @@ public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticati
 
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authResult);
+
         SecurityContextHolder.setContext(context);
+
         chain.doFilter(request, response);
     }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException failed) throws IOException, ServletException {
+
         SecurityContextHolder.clearContext();
+
         failureHandler.onAuthenticationFailure(request, response, failed);
     }
 }

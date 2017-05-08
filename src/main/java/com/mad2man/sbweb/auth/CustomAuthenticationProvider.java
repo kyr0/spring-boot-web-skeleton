@@ -1,6 +1,7 @@
 package com.mad2man.sbweb.auth;
 
 import com.mad2man.sbweb.auth.model.UserContext;
+import com.mad2man.sbweb.common.Error;
 import com.mad2man.sbweb.entity.UserEntity;
 import com.mad2man.sbweb.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- *
+ * Authentication provider, used by Spring WebSecurity and REST methods.
  */
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
@@ -38,7 +39,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
-        Assert.notNull(authentication, "No authentication data provided");
+        if (authentication == null) {
+            throw new IllegalArgumentException("No authentication data provided");
+        }
 
         String username = (String) authentication.getPrincipal();
         String password = (String) authentication.getCredentials();
@@ -46,10 +49,12 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         UserEntity userEntity = userService.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("UserEntity not found: " + username));
 
         if (!encoder.matches(password, userEntity.getPassword())) {
-            throw new BadCredentialsException("Authentication Failed. Username or Password not valid.");
+            throw new BadCredentialsException(Error.AUTHENTICATION_BAD_CREDENTIALS.getErrorMessage());
         }
 
-        if (userEntity.getRoles() == null) throw new InsufficientAuthenticationException("UserEntity has no roles assigned");
+        if (userEntity.getRoles() == null) {
+            throw new InsufficientAuthenticationException(Error.AUTHORIZATION_NO_ROLES_GRANTED.getErrorMessage());
+        }
 
         List<GrantedAuthority> authorities = userEntity.getRoles().stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.getName()))

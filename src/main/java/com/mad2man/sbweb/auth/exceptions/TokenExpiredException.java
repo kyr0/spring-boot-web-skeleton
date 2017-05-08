@@ -6,17 +6,17 @@ import org.springframework.security.core.AuthenticationException;
 /**
  *
  */
-public class JwtExpiredTokenException extends AuthenticationException {
+public class TokenExpiredException extends AuthenticationException {
 
     private static final long serialVersionUID = 3944843291266752711L;
 
     private JwtToken token;
 
-    public JwtExpiredTokenException(String msg) {
+    public TokenExpiredException(String msg) {
         super(msg);
     }
 
-    public JwtExpiredTokenException(JwtToken token, String msg, Throwable t) {
+    public TokenExpiredException(JwtToken token, String msg, Throwable t) {
         super(msg, t);
         this.token = token;
     }

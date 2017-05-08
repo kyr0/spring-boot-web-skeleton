@@ -1,6 +1,6 @@
 package com.mad2man.sbweb.common.viewmodel;
 
-import com.mad2man.sbweb.common.ErrorCode;
+import com.mad2man.sbweb.common.Error;
 import lombok.*;
 import org.springframework.http.HttpStatus;
 
@@ -13,24 +13,41 @@ import java.util.List;
 @Data
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor
-@RequiredArgsConstructor(staticName = "of")
 public class ErrorViewModel {
 
     @NonNull
     private String message;
 
     @NonNull
-    private ErrorCode errorCode;
+    private Error error;
+
+    private String errorName;
 
     @NonNull
-    private HttpStatus status;
-
-    @NonNull
-    private Date timestamp;
+    private HttpStatus httpStatus;
 
     private List<FieldErrorViewModel> fieldErrors;
 
-    public static ErrorViewModel of(String message, ErrorCode errorCode, HttpStatus status) {
-        return ErrorViewModel.of(message, errorCode, status, new Date());
+    private Date timestamp;
+
+    private ErrorViewModel(final String message, final Error error, final HttpStatus httpStatus, final List<FieldErrorViewModel> fieldErrors) {
+        this.message = message;
+        this.error = error;
+        this.errorName = error.name();
+        this.httpStatus = httpStatus;
+        this.timestamp = new Date();
+        this.fieldErrors = fieldErrors;
+    }
+
+    public static ErrorViewModel of(final String message, final Error error, final HttpStatus httpStatus, final List<FieldErrorViewModel> fieldErrors) {
+        return new ErrorViewModel(message, error, httpStatus, fieldErrors);
+    }
+
+    public static ErrorViewModel of(final String message, final Error error, final HttpStatus httpStatus) {
+        return ErrorViewModel.of(message, error, httpStatus, null);
+    }
+
+    public static ErrorViewModel of(final Error error, final HttpStatus httpStatus) {
+        return ErrorViewModel.of(error.getErrorMessage(), error, httpStatus, null);
     }
 }
