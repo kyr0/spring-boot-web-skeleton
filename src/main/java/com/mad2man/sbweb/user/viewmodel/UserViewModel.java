@@ -35,6 +35,7 @@ public class UserViewModel extends ManagedUserAggregate {
 
     @Override
     public String toString() {
+
         return "UserViewModel{" +
             "} " + super.toString();
     }

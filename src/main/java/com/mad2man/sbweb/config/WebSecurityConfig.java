@@ -5,10 +5,9 @@ import com.mad2man.sbweb.auth.CustomAuthenticationProvider;
 import com.mad2man.sbweb.auth.RestAuthenticationEntryPoint;
 import com.mad2man.sbweb.auth.SkipPathRequestMatcher;
 import com.mad2man.sbweb.auth.filter.LoginProcessingFilter;
-import com.mad2man.sbweb.auth.jwt.JwtAuthenticationProvider;
-import com.mad2man.sbweb.auth.jwt.extractor.TokenExtractor;
-import com.mad2man.sbweb.auth.jwt.filter.JwtTokenAuthenticationProcessingFilter;
-import lombok.Data;
+import com.mad2man.sbweb.auth.token.JwtAuthenticationProvider;
+import com.mad2man.sbweb.auth.token.extractor.TokenExtractor;
+import com.mad2man.sbweb.auth.token.filter.JwtTokenAuthenticationProcessingFilter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -39,7 +38,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     public static final String LOGIN_ENDPOINT = "/api/auth/login";
     public static final String TOKEN_BASED_AUTH_ENDPOINTS = "/api/**";
-    public static final String TOKEN_REFRESH_ENDPOINT = "/api/auth/token";
 
     @Autowired private CustomAuthenticationProvider customAuthenticationProvider;
     @Autowired private JwtAuthenticationProvider jwtAuthenticationProvider;
@@ -51,14 +49,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired private ObjectMapper objectMapper;
 
     protected LoginProcessingFilter buildLoginProcessingFilter() throws Exception {
-        LoginProcessingFilter filter = new LoginProcessingFilter(LOGIN_ENDPOINT, successHandler, failureHandler, objectMapper);
+
+        LoginProcessingFilter filter = new LoginProcessingFilter(
+            LOGIN_ENDPOINT, successHandler, failureHandler, objectMapper
+        );
+
         filter.setAuthenticationManager(this.authenticationManager);
+
         return filter;
     }
 
     protected JwtTokenAuthenticationProcessingFilter buildJwtTokenAuthenticationProcessingFilter() throws Exception {
 
-        List<String> pathsToSkip = Arrays.asList(TOKEN_REFRESH_ENDPOINT, LOGIN_ENDPOINT);
+        // TODO: To be enhanced by: Forgot username, forgot password, etc.
+        List<String> pathsToSkip = Arrays.asList(LOGIN_ENDPOINT);
+
         SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(pathsToSkip, TOKEN_BASED_AUTH_ENDPOINTS);
 
         JwtTokenAuthenticationProcessingFilter filter
@@ -86,26 +91,35 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http
-            .csrf().disable() // We don't need CSRF for JWT based authentication
+
+            // We don't need CSRF for JWT based authentication, as long as it's not Set-Cookie based.
+            .csrf().disable()
             .exceptionHandling()
+
+            // provide WebSecurity with UserContext and Authorities
             .authenticationEntryPoint(this.authenticationEntryPoint)
 
+            // only request-based session object
             .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
+            // allow swagger API docs to be viewed by everyone
             .and()
                 .authorizeRequests()
-                    .antMatchers("/v2/api-docs", "/", "/libs/**", "/img/**", "/*.html").permitAll() // TODO!
-                    .antMatchers(LOGIN_ENDPOINT).permitAll() // Login end-point
-                    .antMatchers(TOKEN_REFRESH_ENDPOINT).permitAll() // Token refresh end-point
+                    .antMatchers("/v2/api-docs", "/", "/libs/**", "/img/**", "/*.html").permitAll()
 
+            // protect all other endpoints
             .and()
                 .authorizeRequests()
-                .antMatchers(TOKEN_BASED_AUTH_ENDPOINTS).authenticated() // Protected API end-points
+                .antMatchers(TOKEN_BASED_AUTH_ENDPOINTS).authenticated()
 
             .and()
+
+                // login + token issuing
                 .addFilterBefore(buildLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
+
+                // pure token based login
                 .addFilterBefore(buildJwtTokenAuthenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 }

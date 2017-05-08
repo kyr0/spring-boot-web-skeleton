@@ -25,6 +25,7 @@ public class SimpleCORSFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
 
+        // set the origin dynamically (request origin always allowed; e.g. abc.com -> localhost)
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
         response.setHeader("Access-Control-Allow-Credentials", String.valueOf(corsConfig.getAllowCredentials()));
         response.setHeader("Access-Control-Allow-Methods", String.join(", ", corsConfig.getAllowedMethods()));

@@ -5,7 +5,6 @@ import com.mad2man.sbweb.auth.model.UserContext;
 import com.mad2man.sbweb.auth.model.token.JwtToken;
 import com.mad2man.sbweb.auth.model.token.JwtTokenFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -22,10 +21,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * AuthenticationSuccessHandler
+ *
  */
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+
     private final ObjectMapper mapper;
     private final JwtTokenFactory tokenFactory;
 
@@ -45,6 +45,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         Map<String, Object> tokenMap = new HashMap<>();
         tokenMap.put("accessToken", accessToken.getToken());
+        tokenMap.put("expiration", accessToken.getExpiration());
 
         response.setStatus(HttpStatus.OK.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
@@ -58,7 +59,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
      * in the session during the authentication process..
      *
      */
-    protected final void clearAuthenticationAttributes(HttpServletRequest request) {
+    private final void clearAuthenticationAttributes(HttpServletRequest request) {
 
         HttpSession session = request.getSession(false);
 

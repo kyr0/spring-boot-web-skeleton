@@ -45,9 +45,9 @@ Or using the IDE.
 
 To give you a short introduction, here are some examples of how to use the User and Roles API.
 
-### Login: `POST /api/auth/login
+#### Login: `POST /api/auth/login`
 
-This API resource is publicly available and can be called by anonymous users.
+This API endpoint issues a JWT `accessToken`. The is publicly available and can be called by anonymous users.
 
 Please take a look at `users.csv` for the users available. Username == Password.
 
@@ -59,30 +59,31 @@ Please take a look at `users.csv` for the users available. Username == Password.
 If you provide a *valid username/password combination*, the response should look like:
 
     {
-      "token" : "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyIiwic2NvcGVzIjpbIlJPTEVfVVNFUiJdLCJpc3MiOiJzcHJpbmctYm9vdC13ZWItc2tlbGV0b24iLCJpYXQiOjE0OTM3NTkxNjQsImV4cCI6MTQ5Mzc2MDA2NH0.YhWhdQsYcrnVRUN96BNXQXr0OxyWGLlegT3aeN-bZivMWyE8XLXJ2pFqGIgmQtCwtE-cZDmfjuheO5gNFYhv7Q",
-      "refreshToken" : "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyIiwic2NvcGVzIjpbIlJPTEVfUkVGUkVTSF9UT0tFTiJdLCJpc3MiOiJzcHJpbmctYm9vdC13ZWItc2tlbGV0b24iLCJqdGkiOiJlZjY3YWU0OS01NzY2LTRmNWQtYjVkNS1iMzNhYjgxZjI3NWUiLCJpYXQiOjE0OTM3NTkxNjUsImV4cCI6MTQ5Mzc2Mjc2NX0.lGOEzhU8HSHR91pPgvNtT-eqiF4acdmANL0Br5gnlWVC4VhTqK0YoGLZz_64iRg0Sf-1SXd-t_LUcTopMYJirA"
+      "expiration" : "2017-05-08T15:22:07.025+0000",
+      "accessToken" : "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyIiwic2NvcGVzIjpbIlJPTEVfVVNFUiJdLCJpc3MiOiJzcHJpbmctYm9vdC13ZWItc2tlbGV0b24iLCJpYXQiOjE0OTQyNTYwMjcsImV4cCI6MTQ5NDI1NjkyN30.-x0pNsHM8QLXL0ItJiZwVt12p7dl_v6kqHoX7CH6MwTVv_EA9aiHl49NxnoEfGDhMdq5XVhvFWrjRFhMvVGuaQ"
     }
     
 In case of *invalid user credentials*, status 401 looks like:
  
      {
-       "status" : 401,
-       "message" : "Invalid username or password",
-       "errorCode" : 10,
-       "timestamp" : "2017-05-02T21:07:42.453+0000"
+       "message" : "Authentication failed",
+       "errorCode" : 1010001,
+       "errorName" : "AUTHENTICATION_GENERAL",
+       "httpStatus" : "UNAUTHORIZED",
+       "timestamp" : "2017-05-08T13:29:53.674+0000"
      }
+    
+You can easily inspect JWT tokens by using [JWT Analyzer & Inspector](https://chrome.google.com/webstore/detail/jwt-analyzer-inspector/henclmbnehmcpbjgipaajbggekefngob).
     
 > ##### Authorization header
 > Please note that for any further request that points to an API method of access scope other than [anonymous], you should provide the HTTP header Authorization: Bearer ${token}
     
-### Logout: `POST /api/auth/logout`
-
-In order to actively log-out:
-
+> ##### Where is `/api/auth/logout`?
+> Since there is no state, there is no session. Where there is no session, there is no need for a logout endpoint. Once the JWT token expires, the user is automatically logged out.
 
 ## Concepts and Design Decisions
 
-Before you start using Spring Boot web skeleto, please take the following design decisions into consideration:
+Before you start using Spring Boot web skeleton, please take the following design decisions into consideration:
 
 ### Security
 
@@ -96,25 +97,25 @@ Wen an initial login request to the public resource `POST /api/auth/login` provi
 
     {
         "username": "foo",
-        "password": "bar",
-        "rememberMe": true
+        "password": "bar"
     }
 
-a JWT token is returned using the `Authorization` HTTP response header. 
+...a JWT `accessToken` is being returned in JSON format. To authorize follow-up requests to against certain API endpoints, 
+just set the `Authorization` HTTP request header to the content of the JWT `accessToken`. 
 
 > ##### DO use HTTPS!
 > Since user login credentials are transmitted between client and server in plain-text JSON, you MUST deploy HTTPS in order to protect against Man-in-the-middle (MITM) attacks. It's easy to set up and free of charge when using [LetsEncrypt](https://letsencrypt.org).
 
-Next to the JWT standard claims, the token payload contains only the username as a custom claim.
+Next to the JWT standard claims, the token payload contains the username along with the roles granted as claims.
 
-All tokens are signed and encrypted with a secret key that is defined for the scope of the whole application (`application.security.authorization.jwt.secret-key`).
+All tokens are signed with a secret key that is defined for the scope of the whole application (`application.security.authorization.jwt.secret-key`).
 
 > ##### Please note
 > This secret key MUST be changed prior to a production deployment and MUST remain a secret. The secret key MUST NEVER be exposed.
 
 #### Stateless tokens
 
-Since the whole architecture is service-oriented, there is no such thing like a stateful user session. The Authorization process happens on every API request and the JWT token itself contains the username safely encrypted. 
+The whole architecture is service-oriented and stateless. There is no such thing like a stateful user session. The Authorization process happens on every API request using the JWT token that can be obtained using a call to `/api/auth/login`. The JWT token contains the username along with the roles granted. 
 
 Such tokens can be issued and verified by multiple instances of the application sharing the same secret key. However, access to the same database is requested by any application instance in order to look up the same User Repository.
 
@@ -134,7 +135,7 @@ Users and Roles data can be seeded using `users.csv`, `roles.csv` and `users_rol
 
 To protect API methods from being available without prior login or to check that certain Roles are granted to the User, just annotate methods using `@PreAuthorize` and provide an Expression-Based Access Control rule:
 
-    @PreAuthorize("hasRole('USER') and hasRole('MANAGER')")
+    @PreAuthorize("hasRole('ROLE_USER') and hasRole('ROLE_ADMIN')")
  
 > ##### Expression based authorization
 > If you are not familiar with SpEL and the power of Spring Security 3 expressions, please [read on...](https://dzone.com/refcardz/expression-based-authorization)

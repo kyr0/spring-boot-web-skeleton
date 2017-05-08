@@ -1,4 +1,4 @@
-package com.mad2man.sbweb.auth.jwt;
+package com.mad2man.sbweb.auth.token;
 
 import com.mad2man.sbweb.auth.model.UserContext;
 import com.mad2man.sbweb.auth.model.token.RawAccessJwtToken;

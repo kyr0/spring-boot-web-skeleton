@@ -1,21 +1,23 @@
 package com.mad2man.sbweb.user.api;
 
-import com.mad2man.sbweb.common.api.response.Pagination;
-import com.mad2man.sbweb.user.viewmodel.UserViewModel;
-import com.mad2man.sbweb.user.service.UserService;
 import com.mad2man.sbweb.user.aggregate.ManagedUserAggregate;
+import com.mad2man.sbweb.user.service.UserService;
+import com.mad2man.sbweb.user.viewmodel.UserViewModel;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpHeaders;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 /**
@@ -42,12 +44,14 @@ public class UserResource {
         value = "find all users",
         response = UserViewModel.class,
         tags = {"user"})
-    @GetMapping(value = "/api/user/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ManagedUserAggregate>> getAllUsers() {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping(value = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ManagedUserAggregate>> users(@RequestParam("page") Pageable pageable, HttpSession httpSession) {
 
-        final Page<ManagedUserAggregate> page = userService.getAllManagedUsers(null);
-        HttpHeaders headers = Pagination.generatePaginationHttpHeaders(page, "/api/users");
+        final Page<ManagedUserAggregate> page = userService.getAllManagedUsers(pageable);
 
-        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+        httpSession.setAttribute("a", 123);
+
+        return new ResponseEntity<>(page.getContent(), HttpStatus.OK);
     }
 }

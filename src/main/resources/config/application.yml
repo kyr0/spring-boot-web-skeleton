@@ -56,9 +56,8 @@ documentation:
     license: MIT License
     license-url: http://www.opensource.org/licenses/mit-license.php
 
-jwt:
+token:
     token-expiration-time-in-minutes: 15
-    refresh-token-expiration-time-in-minutes: 60
 
     # CHANGE THIS *SECRET KEY* FOR USE IN YOUR OWN APPLICATION!
     token-signing-key: 259A3EB7-B9CD-4FD7-A328-701EDF22EBC1 # used for signing and encryption
