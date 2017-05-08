@@ -118,7 +118,7 @@ Since the whole architecture is service-oriented, there is no such thing like a 
 
 Such tokens can be issued and verified by multiple instances of the application sharing the same secret key. However, access to the same database is requested by any application instance in order to look up the same User Repository.
 
-#### Token expiration (or: login time-frame)
+#### Sliding-sessions (or: token expiration)
 
 Tokens expire after a configurable validity time (`application.security.authorization.jwt.token-validity-in-seconds`). However, the token is refreshed automatically on every authorized API method call. 
 

@@ -4,6 +4,8 @@ import com.mad2man.sbweb.auth.exceptions.JwtExpiredTokenException;
 import com.mad2man.sbweb.auth.model.Scopes;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 
 import java.util.Date;
@@ -15,7 +17,11 @@ import java.util.Optional;
 
  */
 @SuppressWarnings("unchecked")
+@Data
+@Slf4j
 public class RefreshToken implements JwtToken {
+
+    private final String token = null;
 
     private Jws<Claims> claims;
 
@@ -49,14 +55,6 @@ public class RefreshToken implements JwtToken {
         return Optional.of(new RefreshToken(claims));
     }
 
-    @Override
-    public String getToken() {
-        return null;
-    }
-
-    public Jws<Claims> getClaims() {
-        return claims;
-    }
 
     public String getJti() {
         return claims.getBody().getId();

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mad2man.sbweb.auth.exceptions.AuthMethodNotSupportedException;
 import com.mad2man.sbweb.auth.exceptions.JwtExpiredTokenException;
 import com.mad2man.sbweb.common.ErrorCode;
-import com.mad2man.sbweb.common.api.response.ErrorResponse;
+import com.mad2man.sbweb.common.viewmodel.ErrorViewModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,13 +38,13 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
 		if (e instanceof BadCredentialsException) {
-			mapper.writeValue(response.getWriter(), ErrorResponse.of("Invalid username or password", ErrorCode.AUTHENTICATION_GENERAL, HttpStatus.UNAUTHORIZED));
+			mapper.writeValue(response.getWriter(), ErrorViewModel.of("Invalid username or password", ErrorCode.AUTHENTICATION_GENERAL, HttpStatus.UNAUTHORIZED));
 		} else if (e instanceof JwtExpiredTokenException) {
-			mapper.writeValue(response.getWriter(), ErrorResponse.of("Token has expired", ErrorCode.AUTHENTICATION_TOKEN_EXPIRED, HttpStatus.UNAUTHORIZED));
+			mapper.writeValue(response.getWriter(), ErrorViewModel.of("Token has expired", ErrorCode.AUTHENTICATION_TOKEN_EXPIRED, HttpStatus.UNAUTHORIZED));
 		} else if (e instanceof AuthMethodNotSupportedException) {
-		    mapper.writeValue(response.getWriter(), ErrorResponse.of(e.getMessage(), ErrorCode.AUTHENTICATION_GENERAL, HttpStatus.UNAUTHORIZED));
+		    mapper.writeValue(response.getWriter(), ErrorViewModel.of(e.getMessage(), ErrorCode.AUTHENTICATION_GENERAL, HttpStatus.UNAUTHORIZED));
 		}
 
-		mapper.writeValue(response.getWriter(), ErrorResponse.of("Authentication failed", ErrorCode.AUTHENTICATION_GENERAL, HttpStatus.UNAUTHORIZED));
+		mapper.writeValue(response.getWriter(), ErrorViewModel.of("Authentication failed", ErrorCode.AUTHENTICATION_GENERAL, HttpStatus.UNAUTHORIZED));
 	}
 }

@@ -6,7 +6,8 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
  *
  */
 public class AuthMethodNotSupportedException extends AuthenticationServiceException {
-    private static final long serialVersionUID = 1L;
+
+    private static final long serialVersionUID = 7274298960932117612L;
 
     public AuthMethodNotSupportedException(String msg) {
         super(msg);

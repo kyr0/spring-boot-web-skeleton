@@ -3,12 +3,14 @@ package com.mad2man.sbweb.common;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * Enumeration of REST ErrorResponse types.
+ * Enumeration error types
  */
 public enum ErrorCode {
-    UNKNOWN(2),
-    AUTHENTICATION_GENERAL(10),
-    AUTHENTICATION_TOKEN_EXPIRED(11);
+
+    GENERAL(1000001),
+
+    AUTHENTICATION_GENERAL(1010001),
+    AUTHENTICATION_TOKEN_EXPIRED(1010002);
 
     private int errorCode;
 

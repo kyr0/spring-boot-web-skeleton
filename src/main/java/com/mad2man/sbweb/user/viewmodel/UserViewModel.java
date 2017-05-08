@@ -1,14 +1,14 @@
-package com.mad2man.sbweb.user.model;
+package com.mad2man.sbweb.user.viewmodel;
 
-import com.mad2man.sbweb.user.service.dto.ManagedUserDTO;
+import com.mad2man.sbweb.user.aggregate.ManagedUserAggregate;
 
 import javax.validation.constraints.Size;
 import java.util.Set;
 
 /**
- * View Model extending the ManagedUserDTO, which is meant to be used in REST responses (view).
+ * View Model extending the ManagedUserAggregate, which is meant to be used in REST responses (view).
  */
-public class ManagedUserModel extends ManagedUserDTO {
+public class UserViewModel extends ManagedUserAggregate {
 
     public static final int PASSWORD_MIN_LENGTH = 4;
 
@@ -17,12 +17,12 @@ public class ManagedUserModel extends ManagedUserDTO {
     @Size(min = PASSWORD_MIN_LENGTH, max = PASSWORD_MAX_LENGTH)
     private String password;
 
-    public ManagedUserModel() {
+    public UserViewModel() {
         // Empty constructor needed for Jackson.
     }
 
-    public ManagedUserModel(Long id, String username, String password, String firstName, String lastName,
-                            String email, boolean activated, Set<String> roles) {
+    public UserViewModel(Long id, String username, String password, String firstName, String lastName,
+                         String email, boolean activated, Set<String> roles) {
 
         super(id, username, firstName, lastName, email, activated, roles);
 
@@ -35,7 +35,7 @@ public class ManagedUserModel extends ManagedUserDTO {
 
     @Override
     public String toString() {
-        return "ManagedUserModel{" +
+        return "UserViewModel{" +
             "} " + super.toString();
     }
 }

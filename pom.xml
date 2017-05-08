@@ -81,7 +81,7 @@
         <!-- Backend build tools -->
         <build.tools.frontend-maven-plugin.version>1.4</build.tools.frontend-maven-plugin.version>
         <build.tools.resources.plugin>2.6</build.tools.resources.plugin>
-        <build.tools.compiler.plugin.version>3.6.0</build.tools.compiler.plugin.version>
+        <build.tools.compiler.plugin.version>3.5</build.tools.compiler.plugin.version>
         <build.tools.mapstruct.version>1.1.0.Final</build.tools.mapstruct.version>
 
         <!-- Frontend build tools (auto-install using maven) -->
@@ -92,6 +92,13 @@
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.16</version>
+            <scope>compile</scope>
+        </dependency>
 
         <!-- apache commons, like StringUtils etc. -->
         <dependency>
@@ -441,6 +448,28 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+
+            <!--
+            <plugin>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok-maven-plugin</artifactId>
+                <version>1.16.8.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>delombok</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <addOutputDirectory>false</addOutputDirectory>
+                    <sourceDirectory>src/main/java</sourceDirectory>
+                    <outputDirectory>target/generated-sources</outputDirectory>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            -->
 
             <!-- Run liquibase -->
             <plugin>

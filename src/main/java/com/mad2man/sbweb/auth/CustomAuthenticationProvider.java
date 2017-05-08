@@ -1,7 +1,7 @@
 package com.mad2man.sbweb.auth;
 
 import com.mad2man.sbweb.auth.model.UserContext;
-import com.mad2man.sbweb.entity.User;
+import com.mad2man.sbweb.entity.UserEntity;
 import com.mad2man.sbweb.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -43,19 +43,19 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String username = (String) authentication.getPrincipal();
         String password = (String) authentication.getCredentials();
 
-        User user = userService.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        UserEntity userEntity = userService.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("UserEntity not found: " + username));
 
-        if (!encoder.matches(password, user.getPassword())) {
+        if (!encoder.matches(password, userEntity.getPassword())) {
             throw new BadCredentialsException("Authentication Failed. Username or Password not valid.");
         }
 
-        if (user.getRoles() == null) throw new InsufficientAuthenticationException("User has no roles assigned");
+        if (userEntity.getRoles() == null) throw new InsufficientAuthenticationException("UserEntity has no roles assigned");
 
-        List<GrantedAuthority> authorities = user.getRoles().stream()
+        List<GrantedAuthority> authorities = userEntity.getRoles().stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.getName()))
                 .collect(Collectors.toList());
 
-        UserContext userContext = UserContext.create(user.getUsername(), authorities);
+        UserContext userContext = UserContext.create(userEntity.getUsername(), authorities);
 
         return new UsernamePasswordAuthenticationToken(userContext, null, userContext.getAuthorities());
     }
