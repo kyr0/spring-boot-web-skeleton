@@ -14,7 +14,7 @@
 # Actuator configuaration
 endpoints:
     actuator:
-      enabled: false
+        enabled: false
     enabled: false
 
 spring:
@@ -49,30 +49,31 @@ info:
     project:
         version: #project.version#
 
+documentation:
+    title: spring-boot-web-skeleton API documentation
+    description: Simple API documentation
+    version: 0.0.1-SNAPSHPOT
+    license: MIT License
+    license-url: http://www.opensource.org/licenses/mit-license.php
+
+jwt:
+    token-expiration-time-in-minutes: 15
+    refresh-token-expiration-time-in-minutes: 60
+
+    # CHANGE THIS *SECRET KEY* FOR USE IN YOUR OWN APPLICATION!
+    token-signing-key: 259A3EB7-B9CD-4FD7-A328-701EDF22EBC1 # used for signing and encryption
+
+    # CHANGE THIS
+    token-issuer: spring-boot-web-skeleton
+
+web:
+    http-version: 1.1 # HTTP/1.1
+    cache-time-to-live-in-days: 1461 # 4 years
+
 # ===================================================================
 # Application specific properties
-# Add your own application properties here, see the ApplicationProperties class
+# Add your own application properties here, see the ApplicationConfig class
 # to have type-safe configuration, like in the sections above
 # ===================================================================
 
 application:
-
-    project:
-        name: spring-boot-web-skeleton
-        version: 0.0.1-SNAPSHPOT,
-        license:
-            name: MIT License
-            url: http://www.opensource.org/licenses/mit-license.php
-        url: https://github.com/kyr0/spring-boot-web-skeleton
-        description: Skeleton implementation for enterprise web applications following best practices.
-        issueManagement:
-            url: https://github.com/kyr0/spring-boot-web-skeleton/issues
-            system: GitHub Issues
-
-    http:
-        version: V_1_1
-
-    cache: # Cache configuration
-        ehcache: # Ehcache configuration
-            time-to-live-seconds: 3600 # By default objects stay 1 hour in the cache
-            max-entries: 100 # Number of objects in each cache entry

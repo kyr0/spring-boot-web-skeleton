@@ -33,6 +33,16 @@
     </parent>
 
     <properties>
+
+        <!-- Using /dev/urandom as a high-speed entropy source.
+             Also see: http://bugs.java.com/view_bug.do?bug_id=4705093
+             And see: https://www.2uo.de/myths-about-urandom/#low-entropy
+             For the syntax see Java Bug 6202721 and:
+             http://stackoverflow.com/questions/137212/how-to-solve-performance-problem-with-java-securerandom -->
+
+        <!-- Additional notice: You might want to pass more arguments like  -Xmx512m here -->
+        <argLine>-Djava.security.egd=file:/dev/./urandom</argLine>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -45,6 +55,8 @@
         <jackson.core.version>2.8.8</jackson.core.version>
 
         <spring.boot.version>1.5.3.RELEASE</spring.boot.version>
+        <spring.security.version>4.2.2.RELEASE</spring.security.version>
+        <jjwt.version>0.7.0</jjwt.version>
 
         <postgresql.client.verision>9.4.1212</postgresql.client.verision>
 
@@ -60,7 +72,8 @@
         <liquibase.hibernate.version>3.6</liquibase.hibernate.version>
         <liquibase.slf4j.version>2.0.0</liquibase.slf4j.version>
         <javax.validation.api.version>1.1.0.Final</javax.validation.api.version>
-        <ehcache.version>3.3.1</ehcache.version>
+
+        <apache.commons.version>3.5</apache.commons.version>
 
         <!-- Test libraries -->
         <test.junit.version>4.12</test.junit.version>
@@ -79,6 +92,13 @@
     </properties>
 
     <dependencies>
+
+        <!-- apache commons, like StringUtils etc. -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${apache.commons.version}</version>
+        </dependency>
 
         <!-- Jackson based JSON support.
              See: https://github.com/FasterXML/jackson -->
@@ -102,6 +122,16 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>${jackson.core.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-parameter-names</artifactId>
+            <version>${jackson.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+            <version>${jackson.core.version}</version>
+        </dependency>
 
         <!-- This meta-dependency includes all required spring boot's core dependencies.
              See: https://github.com/spring-projects/spring-boot/tree/master/spring-boot-starters/spring-boot-starter-web -->
@@ -109,6 +139,29 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring.boot.version}</version>
+        </dependency>
+
+        <!-- Spring auth starter including support for web authentication workflow support
+             to protect REST method calls, PasswordEncoder -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <version>${spring.boot.version}</version>
+        </dependency>
+
+        <!-- Provides implementations for JWT based token auth etc. -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+
+        <!-- Spring web-auth module, including support for web auth annotations
+             See: https://github.com/spring-projects/spring-security/tree/master/config -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+            <version>${spring.security.version}</version>
         </dependency>
 
         <!-- Undertow high performance web-server.
@@ -128,7 +181,7 @@
         </dependency>
 
         <!-- Java annotation processor which is invoked as the project is compiled.
-             Maps configuration values to beans via annotations thru mapstruct (see below)-->
+             Maps configuration values to beans via annotations -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
@@ -196,14 +249,6 @@
             <groupId>org.liquibase.ext</groupId>
             <artifactId>liquibase-hibernate5</artifactId>
             <version>${liquibase.hibernate.version}</version>
-        </dependency>
-
-        <!-- ehcache for database and application level caching using JCache API
-             See: http://www.ehcache.org/ -->
-        <dependency>
-            <groupId>org.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <version>${ehcache.version}</version>
         </dependency>
 
         <!-- Make liquibase send logs to SLF4J logging facade (wires to logback of Spring Boot).
@@ -470,6 +515,7 @@
                     <artifactId>spring-boot-devtools</artifactId>
                     <version>${spring.boot.version}</version>
                     <optional>true</optional>
+                    <scope>runtime</scope>
                 </dependency>
             </dependencies>
         </profile>

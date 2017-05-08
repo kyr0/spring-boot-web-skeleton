@@ -26,15 +26,12 @@ spring:
         username: skeleton
         password:
     jpa:
-        database-platform: com.mad2man.sbweb.config.FixedPostgreSQL82Dialect
+        database-platform: com.mad2man.sbweb.common.FixedPostgreSQL82Dialect
         database: POSTGRESQL
         show-sql: true
         properties:
             hibernate.id.new_generator_mappings: true
-            hibernate.cache.use_second_level_cache: true
-            hibernate.cache.use_query_cache: false
             hibernate.generate_statistics: true
-            hibernate.cache.region.factory_class: com.mad2man.sbweb.config.NoDefaultJCacheRegionFactory
     mail:
         host: localhost
         port: 25
@@ -66,17 +63,22 @@ server:
 
 logging:
   level: debug
+
+# ===================================================================
+# Developer specific properties
+# ===================================================================
+
+# CORS is only enabled by default with the "dev" profile, so BrowserSync can access the API
+cors:
+    allowed-origins: "*"
+    allowed-methods: GET, PUT, POST, DELETE, OPTIONS
+    allowed-headers: "*"
+    exposed-headers:
+    allow-credentials: true
+    max-age: 1800
+
 # ===================================================================
 # Application specific properties
 # ===================================================================
-
 application:
 
-    # CORS is only enabled by default with the "dev" profile, so BrowserSync can access the API
-    cors:
-        allowed-origins: "*"
-        allowed-methods: GET, PUT, POST, DELETE, OPTIONS
-        allowed-headers: "*"
-        exposed-headers:
-        allow-credentials: true
-        max-age: 1800
