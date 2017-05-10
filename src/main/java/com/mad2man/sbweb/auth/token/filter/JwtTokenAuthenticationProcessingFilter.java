@@ -1,6 +1,9 @@
 package com.mad2man.sbweb.auth.token.filter;
 
+import com.mad2man.sbweb.auth.model.UserContext;
+import com.mad2man.sbweb.auth.model.token.AccessJwtToken;
 import com.mad2man.sbweb.auth.model.token.JwtToken;
+import com.mad2man.sbweb.auth.model.token.JwtTokenFactory;
 import com.mad2man.sbweb.auth.model.token.RawAccessJwtToken;
 import com.mad2man.sbweb.auth.token.JwtAuthenticationToken;
 import com.mad2man.sbweb.auth.token.extractor.TokenExtractor;
@@ -25,14 +28,17 @@ public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticati
 
     private final AuthenticationFailureHandler failureHandler;
     private final TokenExtractor tokenExtractor;
+    private final JwtTokenFactory tokenFactory;
 
     public JwtTokenAuthenticationProcessingFilter(AuthenticationFailureHandler failureHandler,
-                                                  TokenExtractor tokenExtractor, RequestMatcher matcher) {
+                                                  TokenExtractor tokenExtractor, RequestMatcher matcher,
+                                                  JwtTokenFactory tokenFactory) {
 
         super(matcher);
 
         this.failureHandler = failureHandler;
         this.tokenExtractor = tokenExtractor;
+        this.tokenFactory = tokenFactory;
     }
 
     @Override
@@ -42,7 +48,15 @@ public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticati
         String tokenPayload = request.getHeader(JwtToken.HTTP_AUTHORIZATION_HEADER_NAME);
         RawAccessJwtToken token = new RawAccessJwtToken(tokenExtractor.extract(tokenPayload));
 
-        return getAuthenticationManager().authenticate(new JwtAuthenticationToken(token));
+        Authentication authentication = getAuthenticationManager().authenticate(new JwtAuthenticationToken(token));
+
+        UserContext userContext = (UserContext) authentication.getPrincipal();
+
+        // auto-respond with a new accessToken via header response
+        AccessJwtToken refreshedAccessToken = tokenFactory.createAccessJwtToken(userContext);
+        response.addHeader(JwtToken.HTTP_AUTHORIZATION_HEADER_NAME, refreshedAccessToken.getToken());
+
+        return authentication;
     }
 
     @Override

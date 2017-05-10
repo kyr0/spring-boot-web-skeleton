@@ -5,6 +5,7 @@ import com.mad2man.sbweb.auth.CustomAuthenticationProvider;
 import com.mad2man.sbweb.auth.RestAuthenticationEntryPoint;
 import com.mad2man.sbweb.auth.SkipPathRequestMatcher;
 import com.mad2man.sbweb.auth.filter.LoginProcessingFilter;
+import com.mad2man.sbweb.auth.model.token.JwtTokenFactory;
 import com.mad2man.sbweb.auth.token.JwtAuthenticationProvider;
 import com.mad2man.sbweb.auth.token.extractor.TokenExtractor;
 import com.mad2man.sbweb.auth.token.filter.JwtTokenAuthenticationProcessingFilter;
@@ -30,7 +31,8 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity
+// allows to use @Secured anlong with @PreAuthorize (SpEL) in REST resources
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -47,6 +49,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired private TokenExtractor tokenExtractor;
     @Autowired private AuthenticationManager authenticationManager;
     @Autowired private ObjectMapper objectMapper;
+    @Autowired private JwtTokenFactory tokenFactory;
 
     protected LoginProcessingFilter buildLoginProcessingFilter() throws Exception {
 
@@ -67,7 +70,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(pathsToSkip, TOKEN_BASED_AUTH_ENDPOINTS);
 
         JwtTokenAuthenticationProcessingFilter filter
-            = new JwtTokenAuthenticationProcessingFilter(failureHandler, tokenExtractor, matcher);
+            = new JwtTokenAuthenticationProcessingFilter(failureHandler, tokenExtractor, matcher, tokenFactory);
 
         filter.setAuthenticationManager(this.authenticationManager);
 

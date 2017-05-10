@@ -1,8 +1,46 @@
-# spring-boot-web-skeleton
+# Spring Boot Web Skeleton
 
-Skeleton implementation for enterprise web applications following best practices.
+Welcome to the Spring Boot Web Skeleton project.
+The idea of this project is to provide a boilerplate implementation
+for modern Enterprise Java Web Applications based on Spring Boot.
 
-## How to run the PostgreSQL database server?
+Another goal of this project is to enable less-experienced developers to self-educate themselves on how to use Spring Boot.
+
+Whatever you plan to implement: Using this skeleton, you can ramp up 
+your next Spring Boot project in almost no time.
+
+## Bugs
+
+Please beware: For the time being, this is *BETA* software. The following bugs are known:
+
+- The first requests encountering an error results in a 0 byte response
+- Subsequent errors result in a response that lacks the last } of the JSON response message
+
+## Features
+
+- Domain driven design
+- Undertow high-performance web-server
+- Tomcat (if you exclude the Undertow dependency)
+- YAML based application configuration & profiles
+- Lombok: Auto-generated getters, setters, log, toString, equals
+- SLF4J logging facade
+- JWT / token based authentication
+- Authorization layer with Users, Client, Roles, Permissions
+- Easy to extend User/Client domain data entities
+- Spring Security AuditAware for User, UserData, Client, ClientData
+- RESTful web services, Jackson automated JSON object mapper
+- Pre-configured web security
+- Hibernate, JPA repositories
+- UUID based record identification
+- HirakiCP database connection pooling
+- Pre-configured PostgreSQL database connectivity (+Docker)
+- Liquibase - source control for your database
+- Swagger based automated API documentation generation
+- Springfox Swagger documentation UI
+
+## Integration
+
+#### How to run the PostgreSQL database server?
 
 Just install [docker](https://docs.docker.com/engine/installation/) and [docker-compose](https://docs.docker.com/compose/install/) then run:
 
@@ -17,7 +55,7 @@ In daemon-mode:
 PostgreSQL will start in an isolated linux container on port 5432. 
 The isolated container's internal port will be forwarded to the local host machine port. Thus, you can connect to the PostgreSQL database server using `tcp://localhost:5432`
  
-## How to create the default schema "skeleton"?
+#### How to create the default schema "skeleton"?
 
 Download and install pgAdmin 4 (platform independent).
 Connect to your local PostgreSQL database (see above).
@@ -27,40 +65,115 @@ Right-click and click: Create > Database...
 Enter Database name: skeleton
 Click "Save".
 
-## How to build & run?
+#### How to build & run the project?
 
 Either:
  
 > `./mvnw spring-boot:run`
 
-Or using the IDE.
+Or using your IDE.
  
-## Integration
+#### I want my own nice banner on startup. How?
+ 
+Generate a nice title banner using [patorjk.com ASCII art generator](http://patorjk.com/software/taag/#p=display&h=0&v=0&w=%20&f=ANSI%20Shadow&t=%20s%20k%20e%20l%20e%20t%20o%20n) 
+and save it's content to `resources/banner.txt`
 
-### How to generate a nice title for banner.txt?
+## Concepts
 
-[Use patorjk.com ASCII art generator](http://patorjk.com/software/taag/#p=display&h=0&v=0&w=%20&f=ANSI%20Shadow&t=%20s%20k%20e%20l%20e%20t%20o%20n)
+#### Authentication
 
-## API Usage
+Authentication is about knowing a user. It is implemented using JSON Web Tokens (JWT).
 
-To give you a short introduction, here are some examples of how to use the User and Roles API.
-
-#### Login: `POST /api/auth/login`
-
-This API endpoint issues a JWT `accessToken`. The is publicly available and can be called by anonymous users.
-
-Please take a look at `users.csv` for the users available. Username == Password.
+For user authentication just call `POST /api/auth/login` and provide username and password in JSON format:
 
     curl -X POST -H "Content-Type: application/json" -H "Cache-Control: no-cache" -d '{  
         "username": "user",
         "password": "user"
     }' "http://localhost:8080/api/auth/login"
+    
+The JSON response provides a JSON Web Token (JWT) that enlists the username and the authorities allowed:
+
+    {
+      "expiration" : "2017-05-08T15:22:07.025+0000",
+      "accessToken" : "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJEMEU5RERBQS01OEI2LTRENjEtOTQ5Qy00NTg0NDNDQTZEMDUiLCJpc3MiOiJzcHJpbmctYm9vdC13ZWItc2tlbGV0b24iLCJpYXQiOjE0OTQ0MjcxNjgsImV4cCI6MTQ5NDQyODA2OH0.95b3gD8n-lEQLlYl3HgYFhQjSIy3wLXgMorUJ-RzV3-NvPg57HtuNQ13h5zsC7pNh7u7UUi_3v4gHTpMb31Q3Q"
+    }
+    
+Every JWT expires after a certain time. Token expiry equivalent to a traditional user session life-time configuration.
+
+In case of *invalid user credentials*, status 401 (Unauthorized) will i.e. look like:
+ 
+     {
+       "message" : "Authentication failed",
+       "errorCode" : 1010001,
+       "errorName" : "AUTHENTICATION_GENERAL",
+       "httpStatus" : "UNAUTHORIZED",
+       "timestamp" : "2017-05-08T13:29:53.674+0000"
+     }
+
+> ###### How to set the token expiration time?
+>
+> Just change the value of `token.expiration-time-in-minutes` in `resources/config/application*.yml`.
+
+#### Authorization
+
+Authorization is about knowing what a user is allowed to do.
+
+Since the JWT contains the list of role authorities the user has been assigned to, the API just requires you to set the `Authorization` header including a valid, non-expired `accessToken`.
+ 
+    curl -X GET \
+         -H "Content-Type: application/json" \
+         -H "Cache-Control: no-cache" \
+         -H "Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJEMEU5RERBQS01OEI2LTRENjEtOTQ5Qy00NTg0NDNDQTZEMDUiLCJpc3MiOiJzcHJpbmctYm9vdC13ZWItc2tlbGV0b24iLCJpYXQiOjE0OTQ0MjcxNjgsImV4cCI6MTQ5NDQyODA2OH0.95b3gD8n-lEQLlYl3HgYFhQjSIy3wLXgMorUJ-RzV3-NvPg57HtuNQ13h5zsC7pNh7u7UUi_3v4gHTpMb31Q3Q" \
+         "http://localhost:8080/api/heartbeat"
+
+> ###### How to control API access?
+>
+> There are *roles* and *permissions*. *Roles* belong to *Users*. *Permissions* belong to *Roles*. 
+> Roles and permissions come with unique names e.g. `ROLE_USER` or `PERM_FOOBAR`.
+>
+> All `/api/*` API endpoints are protected by default. Fine grained access control is available thru `@PreAuthorize`.
+
+> You can simply check for a role being granted:
+>
+>     @PreAuthorize("hasAuthority('ROLE_USER')")
+>     @GetMapping(value = "/api/foobar", produces = MediaType.APPLICATION_JSON_VALUE)
+>     public ResponseEntity<FoobarViewModel> foobar() {
+>         ...
+>     }
+>
+> ...or a permission being granted:
+>    
+>     @PreAuthorize("hasAuthority('PERM_FOOBAR')")
+>
+> ...or even check for logical combinations:
+>
+>     @PreAuthorize("hasAuthority('ROLE_FOOBAR') OR hasAuthority('ROLE_BAZBAZ')")
+>
+> If you are not familiar with SpEL and the power of Spring Security 3 expressions, 
+> please [read on...](https://dzone.com/refcardz/expression-based-authorization)
+ 
+## Skeleton API endpoints
+
+#### Login: `POST /api/auth/login`
+
+###### Access level: Public
+
+This API endpoint authenticates a user by username and password. It issues one JWT token at a time.
+
+    curl -X POST \
+         -H "Content-Type: application/json" \
+         -H "Cache-Control: no-cache" \
+         -d '{  
+            "username": "admin",
+            "password": "admin"
+         }' \
+         "http://localhost:8080/api/auth/login"
 
 If you provide a *valid username/password combination*, the response should look like:
 
     {
       "expiration" : "2017-05-08T15:22:07.025+0000",
-      "accessToken" : "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyIiwic2NvcGVzIjpbIlJPTEVfVVNFUiJdLCJpc3MiOiJzcHJpbmctYm9vdC13ZWItc2tlbGV0b24iLCJpYXQiOjE0OTQyNTYwMjcsImV4cCI6MTQ5NDI1NjkyN30.-x0pNsHM8QLXL0ItJiZwVt12p7dl_v6kqHoX7CH6MwTVv_EA9aiHl49NxnoEfGDhMdq5XVhvFWrjRFhMvVGuaQ"
+      "accessToken" : "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJEMEU5RERBQS01OEI2LTRENjEtOTQ5Qy00NTg0NDNDQTZEMDUiLCJpc3MiOiJzcHJpbmctYm9vdC13ZWItc2tlbGV0b24iLCJpYXQiOjE0OTQ0MjcxNjgsImV4cCI6MTQ5NDQyODA2OH0.95b3gD8n-lEQLlYl3HgYFhQjSIy3wLXgMorUJ-RzV3-NvPg57HtuNQ13h5zsC7pNh7u7UUi_3v4gHTpMb31Q3Q"
     }
     
 In case of *invalid user credentials*, status 401 looks like:
@@ -73,76 +186,51 @@ In case of *invalid user credentials*, status 401 looks like:
        "timestamp" : "2017-05-08T13:29:53.674+0000"
      }
     
-You can easily inspect JWT tokens by using [JWT Analyzer & Inspector](https://chrome.google.com/webstore/detail/jwt-analyzer-inspector/henclmbnehmcpbjgipaajbggekefngob).
-    
-> ##### Authorization header
-> Please note that for any further request that points to an API method of access scope other than [anonymous], you should provide the HTTP header Authorization: Bearer ${token}
-    
-> ##### Where is `/api/auth/logout`?
-> Since there is no state, there is no session. Where there is no session, there is no need for a logout endpoint. Once the JWT token expires, the user is automatically logged out.
+#### Heartbeat: `/api/heartbeat`
 
-## Concepts and Design Decisions
+######  Access level: Public
 
-Before you start using Spring Boot web skeleton, please take the following design decisions into consideration:
+An example for how to use the authorization model (the role based permission model) is provided by the `heartbeat` endpoint:
 
-### Security
+    curl -X GET \
+         -H "Content-Type: application/json" \
+         -H "Cache-Control: no-cache" \
+         -H "Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJEMEU5RERBQS01OEI2LTRENjEtOTQ5Qy00NTg0NDNDQTZEMDUiLCJpc3MiOiJzcHJpbmctYm9vdC13ZWItc2tlbGV0b24iLCJpYXQiOjE0OTQ0MjcxNjgsImV4cCI6MTQ5NDQyODA2OH0.95b3gD8n-lEQLlYl3HgYFhQjSIy3wLXgMorUJ-RzV3-NvPg57HtuNQ13h5zsC7pNh7u7UUi_3v4gHTpMb31Q3Q" \
+         "http://localhost:8080/api/heartbeat"
 
-#### Authentication process
-
-We were looking for a lightweight, easy to understand, yet secure way for Authentication and Authorization.
-
-Therefore we decided to go for JSON Web Tokens (JWT) in order to provide a token based authentication.
-
-Wen an initial login request to the public resource `POST /api/auth/login` provides valid username and password credentials,
+In case of successful authentication and authorization, the service responds the timestamp of service:
 
     {
-        "username": "foo",
-        "password": "bar"
+      "timestamp" : "2017-05-10T06:40:08.542+0000"
     }
 
-...a JWT `accessToken` is being returned in JSON format. To authorize follow-up requests to against certain API endpoints, 
-just set the `Authorization` HTTP request header to the content of the JWT `accessToken`. 
+#### Users: `/api/users`
 
-> ##### DO use HTTPS!
-> Since user login credentials are transmitted between client and server in plain-text JSON, you MUST deploy HTTPS in order to protect against Man-in-the-middle (MITM) attacks. It's easy to set up and free of charge when using [LetsEncrypt](https://letsencrypt.org).
+###### Access level: Protected | Authority required: PERM_USERS_READ_ALL
 
-Next to the JWT standard claims, the token payload contains the username along with the roles granted as claims.
+    curl -X GET \
+         -H "Content-Type: application/json" \
+         -H "Cache-Control: no-cache" \
+         -H "Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJEMEU5RERBQS01OEI2LTRENjEtOTQ5Qy00NTg0NDNDQTZEMDUiLCJpc3MiOiJzcHJpbmctYm9vdC13ZWItc2tlbGV0b24iLCJpYXQiOjE0OTQ0MjcxNjgsImV4cCI6MTQ5NDQyODA2OH0.95b3gD8n-lEQLlYl3HgYFhQjSIy3wLXgMorUJ-RzV3-NvPg57HtuNQ13h5zsC7pNh7u7UUi_3v4gHTpMb31Q3Q" \
+         "http://localhost:8080/api/users"
 
-All tokens are signed with a secret key that is defined for the scope of the whole application (`application.security.authorization.jwt.secret-key`).
+Returns all users mapped as view models:
 
-> ##### Please note
-> This secret key MUST be changed prior to a production deployment and MUST remain a secret. The secret key MUST NEVER be exposed.
+    [ {
+      "id" : "B691BDDF-5EA5-470B-A286-B10DC1FABA60",
+      "username" : "system",
+      "firstName" : "System",
+      "lastName" : "System",
+      "email" : "system@localhost",
+      "activated" : true,
+      "data" : {
+        "address" : "Foo square 1, NY"
+      },
+      "roles" : [ "2F17AF79-50BA-433B-B7B3-3649436BA9E2", "30193EDC-96BF-47F1-BA97-E8C37709E1AC", "E5B83654-635C-4011-AEE1-1DFB8695A5C1", "7D7D15DC-9060-4C1D-903A-BF08F8ECEFF5" ],
+      "clients" : [ "9FE7E40D-07E8-4F2E-97AB-617C0C8EBD36" ]
+    }, ... ]
 
-#### Stateless tokens
-
-The whole architecture is service-oriented and stateless. There is no such thing like a stateful user session. The Authorization process happens on every API request using the JWT token that can be obtained using a call to `/api/auth/login`. The JWT token contains the username along with the roles granted. 
-
-Such tokens can be issued and verified by multiple instances of the application sharing the same secret key. However, access to the same database is requested by any application instance in order to look up the same User Repository.
-
-#### Sliding-sessions (or: token expiration)
-
-Tokens expire after a configurable validity time (`application.security.authorization.jwt.token-validity-in-seconds`). However, the token is refreshed automatically on every authorized API method call. 
-
-In consequence, API users stay logged-in until they don't call any API method for as long as the validity time is set or the method `POST /api/auth/logout` is called.
-
-### Authorization process
-
-The Authorization process extends the Authentication process by a fine-grained control over which User should be allowed to execute what functionality.
-
-In this implementation, this is covered by an implementation of a User to Role relation. You can grant many Roles to many Users (n:m relation).
-
-Users and Roles data can be seeded using `users.csv`, `roles.csv` and `users_roles.csv` for defining the relations by id.
-
-To protect API methods from being available without prior login or to check that certain Roles are granted to the User, just annotate methods using `@PreAuthorize` and provide an Expression-Based Access Control rule:
-
-    @PreAuthorize("hasRole('ROLE_USER') and hasRole('ROLE_ADMIN')")
- 
-> ##### Expression based authorization
-> If you are not familiar with SpEL and the power of Spring Security 3 expressions, please [read on...](https://dzone.com/refcardz/expression-based-authorization)
- 
-### 
-
-## Roadmap / TODO's
+## Roadmap
 
 The following features are planned for implementation (ordered by dependency):
 
@@ -186,81 +274,6 @@ The following features are planned for implementation (ordered by dependency):
   - Configurable to persist all request and response header + body data
   - Thus enables a full request audit-trail out-of-the-box
   - Integration tested
-
-#### Authentication and Authorization
-  
-- General purpose REST API-level authentication and authorization layer implementation based on Spring Web Security and annotations.
-    
-    - Separation of relevant entities:
-       
-       - User Account
-         - Id
-         - Identifier (required, unique, can represent any data)
-         - Type (required, anonymous [default], user, system)
-         - E-Mail (required, not unique)
-         - Display name (required, used to address the user)
-         - Activated (required, boolean, true [default])
-         
-       - User Account Data
-         - Id
-         - 1:1 relation to User Account
-         - Meant to be extended in target application
-         
-       - Client
-         - Id
-         - Display name (required, addresses the client)
-       
-       - Client Data 
-         - Id
-         - 1:1 relation to Client
-         - Meant to be extended in target application
-         
-       - User Account to Clients
-         - Id
-         - User_Account_Id
-         - Client_Id
-         
-       - Roles
-         - Id
-         - Name
-         - Description
-         - Initial roles (extensible):
-           - ANONYMOUS
-           - USER
-           - ADMINISTRATOR
-           - SYSTEM
-       
-       - Permissions
-         - Id
-         - Name
-         - Role_Id
-         - Description
-       
-       - User Account to Roles
-         - Id
-         - Role_Id
-         - User_Id
-         - Initial users (extensible)
-           - "system" (Roles: SYSTEM, ADMINISTRATOR, USER, ANONYMOUS)
-           - "administrator" (Roles: ADMINISTRATOR, USER, ANONYMOUS)
-         
-       - AuthorizationContext
-         - Contains a Set<Permission> of all permissions granted (cached)
-         - Cache is loaded on first call of the getter
-         - Meant to be extended in target application 
-         - Needs to be updated when roles/permissions of a user are changed (cache invalidation!)
-         - Method to check if user has a specific permission (ACL check)
-  
-       - AuthenticationContext  
-         - Holds the User Account object
-           - If not authenticated, a default Anonymous User Account
-           - If authenticated, the User Account applicable
-         - Holds the AuthorizationContext object
-         
-       - Transparent access to AuthenticationContext 
-         - It's just a tiny POJO hold in the HTTP session
-         - Thus can be accessed where applicable
-         - Used as the only data source for ACL checks
   
 #### Workflow service
 

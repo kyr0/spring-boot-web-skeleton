@@ -16,10 +16,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Authentication provider, used by Spring WebSecurity and REST methods.
@@ -56,11 +57,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             throw new InsufficientAuthenticationException(Error.AUTHORIZATION_NO_ROLES_GRANTED.getErrorMessage());
         }
 
-        List<GrantedAuthority> authorities = userEntity.getRoles().stream()
-                .map(authority -> new SimpleGrantedAuthority(authority.getName()))
-                .collect(Collectors.toList());
-
-        UserContext userContext = UserContext.create(userEntity.getUsername(), authorities);
+        UserContext userContext = UserContext.create(userEntity.getId(), userEntity.getUsername(), userEntity.getAuthorities());
 
         return new UsernamePasswordAuthenticationToken(userContext, null, userContext.getAuthorities());
     }

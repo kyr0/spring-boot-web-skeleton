@@ -11,7 +11,7 @@ import java.util.Optional;
 /**
  * Spring Data JPA repository for the UserEntity domain.
  */
-public interface UserRepository extends JpaRepository<UserEntity, Long> {
+public interface UserRepository extends JpaRepository<UserEntity, String> {
 
     Optional<UserEntity> findOneByActivationKey(String activationKey);
 
@@ -27,5 +27,5 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     @EntityGraph(attributePaths = "roles")
     Optional<UserEntity> findOneWithRolesByUsername(String username);
 
-    Page<UserEntity> findAllByUsernameNot(Pageable pageable, String username);
+    Optional<UserEntity> findOneById(String userId);
 }

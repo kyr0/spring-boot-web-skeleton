@@ -57,13 +57,13 @@ documentation:
     license-url: http://www.opensource.org/licenses/mit-license.php
 
 token:
-    token-expiration-time-in-minutes: 15
+    expiration-time-in-minutes: 15
 
     # CHANGE THIS *SECRET KEY* FOR USE IN YOUR OWN APPLICATION!
-    token-signing-key: 259A3EB7-B9CD-4FD7-A328-701EDF22EBC1 # used for signing and encryption
+    signing-key: 259A3EB7-B9CD-4FD7-A328-701EDF22EBC1 # used for signing and encryption
 
     # CHANGE THIS
-    token-issuer: spring-boot-web-skeleton
+    issuer: spring-boot-web-skeleton
 
 web:
     http-version: 1.1 # HTTP/1.1
