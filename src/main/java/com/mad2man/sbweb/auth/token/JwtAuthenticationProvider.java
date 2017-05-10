@@ -3,21 +3,28 @@ package com.mad2man.sbweb.auth.token;
 import com.mad2man.sbweb.auth.model.UserContext;
 import com.mad2man.sbweb.auth.model.token.JwtToken;
 import com.mad2man.sbweb.auth.model.token.RawAccessJwtToken;
-import com.mad2man.sbweb.config.JwtConfig;
+import com.mad2man.sbweb.config.TokenConfig;
+import com.mad2man.sbweb.entity.UserEntity;
+import com.mad2man.sbweb.user.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
+ * Used to validate incoming tokens.
+ *
  * An {@link AuthenticationProvider} implementation that will use provided
  * instance of {@link JwtToken} to perform authentication.
  */
@@ -25,11 +32,13 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unchecked")
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
-    private final JwtConfig jwtConfig;
+    private final TokenConfig tokenConfig;
+    private final UserService userService;
 
     @Autowired
-    public JwtAuthenticationProvider(JwtConfig jwtConfig) {
-        this.jwtConfig = jwtConfig;
+    public JwtAuthenticationProvider(UserService userService, TokenConfig tokenConfig) {
+        this.tokenConfig = tokenConfig;
+        this.userService = userService;
     }
 
     @Override
@@ -37,19 +46,15 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
         RawAccessJwtToken rawAccessToken = (RawAccessJwtToken) authentication.getCredentials();
 
-        Jws<Claims> jwsClaims = rawAccessToken.parseClaims(jwtConfig.getTokenSigningKey());
+        Jws<Claims> jwsClaims = rawAccessToken.parseClaims(tokenConfig.getSigningKey());
 
-        String subject = jwsClaims.getBody().getSubject();
+        String userId = jwsClaims.getBody().getSubject();
 
-        List<String> scopes = jwsClaims.getBody().get(JwtToken.CLAIM_SCOPES, List.class);
+        UserEntity userEntity = userService.findByUserId(userId).orElseThrow(() -> new UsernameNotFoundException("UserEntity not found: " + userId));
 
-        List<GrantedAuthority> authorities = scopes.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        UserContext userContext = UserContext.create(userEntity.getId(), userEntity.getUsername(), userEntity.getAuthorities());
 
-        UserContext context = UserContext.create(subject, authorities);
-
-        return new JwtAuthenticationToken(context, context.getAuthorities());
+        return new JwtAuthenticationToken(userContext, userEntity.getAuthorities());
     }
 
     @Override

@@ -27,11 +27,17 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Page<ManagedUserAggregate> getAllManagedUsers(Pageable pageable) {
-        return userRepository.findAllByUsernameNot(pageable, UserEntity.ANONYMOUS_USER).map(ManagedUserAggregate::new);
+        return userRepository.findAll(pageable).map(ManagedUserAggregate::new);
     }
 
     @Transactional(readOnly = true)
     public Optional<UserEntity> findByUsername(String username) {
         return userRepository.findOneByUsername(username);
+    }
+
+
+    @Transactional(readOnly = true)
+    public Optional<UserEntity> findByUserId(String userId) {
+        return userRepository.findOneById(userId);
     }
 }

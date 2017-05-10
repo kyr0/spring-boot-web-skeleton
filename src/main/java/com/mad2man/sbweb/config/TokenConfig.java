@@ -10,19 +10,19 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "token")
 @Getter
 @Setter
-public class JwtConfig {
+public class TokenConfig {
     /**
      * {@link JwtToken} will expire after this time.
      */
-    private Integer tokenExpirationTimeInMinutes;
+    private Integer expirationTimeInMinutes;
 
     /**
      * Token issuer
      */
-    private String tokenIssuer;
+    private String issuer;
 
     /**
      * Key is used to sign {@link JwtToken}.
      */
-    private String tokenSigningKey;
+    private String signingKey;
 }

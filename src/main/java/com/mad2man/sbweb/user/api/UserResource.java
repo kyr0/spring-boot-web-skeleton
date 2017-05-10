@@ -40,17 +40,25 @@ public class UserResource {
      * @return the ResponseEntity with status 200 (OK) and with body all users
      */
     @ApiOperation(
-        notes = "returns all users paginated",
+        notes = "returns all users",
         value = "find all users",
         response = UserViewModel.class,
         tags = {"user"})
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('PERM_USERS_READ_ALL')")
     @GetMapping(value = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ManagedUserAggregate>> users(@RequestParam("page") Pageable pageable, HttpSession httpSession) {
+    public ResponseEntity<List<ManagedUserAggregate>> users() {
 
-        final Page<ManagedUserAggregate> page = userService.getAllManagedUsers(pageable);
+        /* example of how to get the current user context:
 
-        httpSession.setAttribute("a", 123);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            UserContext userContext = (UserContext) authentication.getPrincipal();
+
+            log.debug("userContext: " + userContext.getUsername());
+
+         */
+
+        final Page<ManagedUserAggregate> page = userService.getAllManagedUsers(null);
 
         return new ResponseEntity<>(page.getContent(), HttpStatus.OK);
     }

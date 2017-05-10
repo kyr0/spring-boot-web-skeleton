@@ -1,7 +1,10 @@
 package com.mad2man.sbweb.user.aggregate;
 
+import com.mad2man.sbweb.entity.ClientEntity;
 import com.mad2man.sbweb.entity.RoleEntity;
+import com.mad2man.sbweb.entity.UserDataEntity;
 import com.mad2man.sbweb.entity.UserEntity;
+import com.mad2man.sbweb.user.viewmodel.UserDataViewModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,7 +23,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class ManagedUserAggregate {
 
-    private Long id;
+    private String id;
 
     @Pattern(regexp = UserEntity.USERNAME_REGEX)
     @Size(min = 1, max = 50)
@@ -38,13 +41,19 @@ public class ManagedUserAggregate {
 
     private boolean activated = false;
 
+    private UserDataViewModel data = null;
+
     private Set<String> roles;
+
+    private Set<String> clients;
 
     public ManagedUserAggregate(UserEntity userEntity) {
 
         this(userEntity.getId(), userEntity.getUsername(), userEntity.getFirstName(), userEntity.getLastName(),
             userEntity.getEmail(), userEntity.isActivated(),
-            userEntity.getRoles().stream().map(RoleEntity::getName)
-                .collect(Collectors.toSet()));
+            new UserDataViewModel(userEntity.getUserData()),
+            userEntity.getRoles().stream().map(RoleEntity::getId)
+                .collect(Collectors.toSet()),
+            userEntity.getClients().stream().map(ClientEntity::getId).collect(Collectors.toSet()));
     }
 }

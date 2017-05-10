@@ -8,17 +8,56 @@
 
     <property name="now" value="current_timestamp" dbms="postgresql"/>
 
-    <changeSet id="00000000000000" author="skeleton">
-        <createSequence sequenceName="hibernate_sequence" startValue="1000" incrementBy="50"/>
-    </changeSet>
-
     <!--
         skeleton core tables.
-        The initial schema has the '00000000000001' id, so that it is over-written if we re-generate it.
+        The initial schema has the '00000000000000' id, so that it is over-written if we re-generate it.
     -->
-    <changeSet id="00000000000001" author="skeleton">
+    <changeSet id="00000000000000" author="skeleton">
+
+        <createTable tableName="skeleton_client">
+            <column name="id" type="char(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(50)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="email" type="varchar(100)">
+                <constraints unique="true" nullable="true"/>
+            </column>
+            <column name="activated" type="boolean" valueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+            <column name="created_by" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_by" type="char(36)"/>
+            <column name="last_modified_date" type="timestamp"/>
+        </createTable>
+
+        <createTable tableName="skeleton_clientdata">
+
+            <column name="client_id" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="address" type="varchar(255)"/>
+
+            <column name="created_by" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_by" type="char(36)"/>
+            <column name="last_modified_date" type="timestamp"/>
+
+        </createTable>
+
         <createTable tableName="skeleton_user">
-            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+            <column name="id" type="char(36)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="username" type="varchar(50)">
@@ -35,7 +74,7 @@
             </column>
             <column name="activation_key" type="varchar(20)"/>
             <column name="reset_key" type="varchar(20)"/>
-            <column name="created_by" type="varchar(50)">
+            <column name="created_by" type="char(36)">
                 <constraints nullable="false"/>
             </column>
             <column name="created_date" type="timestamp" defaultValueDate="${now}">
@@ -44,24 +83,52 @@
             <column name="reset_date" type="timestamp">
                 <constraints nullable="true"/>
             </column>
-            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_by" type="char(36)"/>
             <column name="last_modified_date" type="timestamp"/>
         </createTable>
 
+        <createTable tableName="skeleton_user_client">
+            <column name="user_id" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="client_id" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="skeleton_userdata">
+
+            <column name="user_id" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="address" type="varchar(255)"/>
+
+            <column name="created_by" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_by" type="char(36)"/>
+            <column name="last_modified_date" type="timestamp"/>
+
+        </createTable>
+
         <createIndex indexName="idx_user_username"
-            tableName="skeleton_user"
-            unique="true">
+                     tableName="skeleton_user"
+                     unique="true">
             <column name="username" type="varchar(50)"/>
         </createIndex>
 
         <createIndex indexName="idx_user_email"
-            tableName="skeleton_user"
-            unique="true">
+                     tableName="skeleton_user"
+                     unique="true">
             <column name="email" type="varchar(100)"/>
         </createIndex>
 
         <createTable tableName="skeleton_role">
-            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+            <column name="id" type="char(36)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="varchar(50)">
@@ -70,10 +137,28 @@
         </createTable>
 
         <createTable tableName="skeleton_user_role">
-            <column name="user_id" type="bigint">
+            <column name="user_id" type="char(36)">
                 <constraints nullable="false"/>
             </column>
-            <column name="role_id" type="bigint">
+            <column name="role_id" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="skeleton_permission">
+            <column name="id" type="char(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="skeleton_role_permission">
+            <column name="role_id" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="permission_id" type="char(36)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -90,6 +175,57 @@
                                  referencedColumnNames="id"
                                  referencedTableName="skeleton_user"/>
 
+        <addForeignKeyConstraint baseColumnNames="client_id"
+                                 baseTableName="skeleton_user_client"
+                                 constraintName="fk_client_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="skeleton_client"/>
+
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="skeleton_user_client"
+                                 constraintName="fk_user_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="skeleton_user"/>
+
+        <addForeignKeyConstraint baseColumnNames="role_id"
+                                 baseTableName="skeleton_role_permission"
+                                 constraintName="fk_role_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="skeleton_role"/>
+
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="skeleton_userdata"
+                                 constraintName="fk_userdata_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="skeleton_user"/>
+
+    </changeSet>
+
+    <!--
+        skeleton data files
+        The initial schema has the '00000000000001' id, so that it is over-written if we re-generate it.
+    -->
+    <changeSet id="00000000000001" author="skeleton">
+
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/clients.csv"
+                  separator=";"
+                  tableName="skeleton_client">
+            <column name="activated" type="boolean"/>
+            <column name="created_date" type="timestamp"/>
+        </loadData>
+
+        <dropDefaultValue tableName="skeleton_client" columnName="created_date" columnDataType="datetime"/>
+
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/clientdata.csv"
+                  separator=";"
+                  tableName="skeleton_clientdata">
+            <column name="created_date" type="timestamp"/>
+        </loadData>
+
+        <dropDefaultValue tableName="skeleton_clientdata" columnName="created_date" columnDataType="datetime"/>
+
         <loadData encoding="UTF-8"
                   file="config/liquibase/users.csv"
                   separator=";"
@@ -101,14 +237,38 @@
         <dropDefaultValue tableName="skeleton_user" columnName="created_date" columnDataType="datetime"/>
 
         <loadData encoding="UTF-8"
+                  file="config/liquibase/userdata.csv"
+                  separator=";"
+                  tableName="skeleton_userdata">
+            <column name="created_date" type="timestamp"/>
+        </loadData>
+
+        <dropDefaultValue tableName="skeleton_userdata" columnName="created_date" columnDataType="datetime"/>
+
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/permissions.csv"
+                  separator=";"
+                  tableName="skeleton_permission"/>
+
+        <loadData encoding="UTF-8"
                   file="config/liquibase/roles.csv"
                   separator=";"
                   tableName="skeleton_role"/>
 
         <loadData encoding="UTF-8"
+                  file="config/liquibase/roles_permissions.csv"
+                  separator=";"
+                  tableName="skeleton_role_permission"/>
+
+        <loadData encoding="UTF-8"
                   file="config/liquibase/users_roles.csv"
                   separator=";"
                   tableName="skeleton_user_role"/>
+
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/users_clients.csv"
+                  separator=";"
+                  tableName="skeleton_user_client"/>
 
     </changeSet>
 
