@@ -13,7 +13,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 /**
  * Factory class that should be always used to create {@link JwtToken}.

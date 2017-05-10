@@ -2,7 +2,6 @@ package com.mad2man.sbweb.user.aggregate;
 
 import com.mad2man.sbweb.entity.ClientEntity;
 import com.mad2man.sbweb.entity.RoleEntity;
-import com.mad2man.sbweb.entity.UserDataEntity;
 import com.mad2man.sbweb.entity.UserEntity;
 import com.mad2man.sbweb.user.viewmodel.UserDataViewModel;
 import lombok.AllArgsConstructor;

@@ -1,6 +1,5 @@
 package com.mad2man.sbweb.user.viewmodel;
 
-import com.mad2man.sbweb.entity.UserDataEntity;
 import com.mad2man.sbweb.user.aggregate.ManagedUserAggregate;
 
 import javax.validation.constraints.Size;
