@@ -86,22 +86,26 @@ Authentication is about knowing a user. It is implemented using JSON Web Tokens 
 
 For user authentication just call `POST /api/auth/login` and provide username and password in JSON format:
 
+```
     curl -X POST -H "Content-Type: application/json" -H "Cache-Control: no-cache" -d '{  
         "username": "user",
         "password": "user"
     }' "http://localhost:8080/api/auth/login"
-    
+```
+
 The JSON response provides a JSON Web Token (JWT) that enlists the username and the authorities allowed:
 
+``` json
     {
       "expiration" : "2017-05-08T15:22:07.025+0000",
       "accessToken" : "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJEMEU5RERBQS01OEI2LTRENjEtOTQ5Qy00NTg0NDNDQTZEMDUiLCJpc3MiOiJzcHJpbmctYm9vdC13ZWItc2tlbGV0b24iLCJpYXQiOjE0OTQ0MjcxNjgsImV4cCI6MTQ5NDQyODA2OH0.95b3gD8n-lEQLlYl3HgYFhQjSIy3wLXgMorUJ-RzV3-NvPg57HtuNQ13h5zsC7pNh7u7UUi_3v4gHTpMb31Q3Q"
     }
-    
+```
+
 Every JWT expires after a certain time. Token expiry equivalent to a traditional user session life-time configuration.
 
 In case of *invalid user credentials*, status 401 (Unauthorized) will i.e. look like:
- 
+``` json
      {
        "message" : "Authentication failed",
        "errorCode" : 1010001,
@@ -109,7 +113,7 @@ In case of *invalid user credentials*, status 401 (Unauthorized) will i.e. look 
        "httpStatus" : "UNAUTHORIZED",
        "timestamp" : "2017-05-08T13:29:53.674+0000"
      }
-
+```
 > ###### How to set the token expiration time?
 >
 > Just change the value of `token.expiration-time-in-minutes` in `resources/config/application*.yml`.
@@ -119,13 +123,13 @@ In case of *invalid user credentials*, status 401 (Unauthorized) will i.e. look 
 Authorization is about knowing what a user is allowed to do.
 
 Since the JWT contains the list of role authorities the user has been assigned to, the API just requires you to set the `Authorization` header including a valid, non-expired `accessToken`.
- 
+```
     curl -X GET \
          -H "Content-Type: application/json" \
          -H "Cache-Control: no-cache" \
          -H "Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJEMEU5RERBQS01OEI2LTRENjEtOTQ5Qy00NTg0NDNDQTZEMDUiLCJpc3MiOiJzcHJpbmctYm9vdC13ZWItc2tlbGV0b24iLCJpYXQiOjE0OTQ0MjcxNjgsImV4cCI6MTQ5NDQyODA2OH0.95b3gD8n-lEQLlYl3HgYFhQjSIy3wLXgMorUJ-RzV3-NvPg57HtuNQ13h5zsC7pNh7u7UUi_3v4gHTpMb31Q3Q" \
          "http://localhost:8080/api/heartbeat"
-
+```
 > ###### How to control API access?
 >
 > There are *roles* and *permissions*. *Roles* belong to *Users*. *Permissions* belong to *Roles*. 
@@ -159,7 +163,7 @@ Since the JWT contains the list of role authorities the user has been assigned t
 ###### Access level: Public
 
 This API endpoint authenticates a user by username and password. It issues one JWT token at a time.
-
+```
     curl -X POST \
          -H "Content-Type: application/json" \
          -H "Cache-Control: no-cache" \
@@ -168,16 +172,16 @@ This API endpoint authenticates a user by username and password. It issues one J
             "password": "admin"
          }' \
          "http://localhost:8080/api/auth/login"
-
+ ```
 If you provide a *valid username/password combination*, the response should look like:
-
+``` json
     {
       "expiration" : "2017-05-08T15:22:07.025+0000",
       "accessToken" : "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJEMEU5RERBQS01OEI2LTRENjEtOTQ5Qy00NTg0NDNDQTZEMDUiLCJpc3MiOiJzcHJpbmctYm9vdC13ZWItc2tlbGV0b24iLCJpYXQiOjE0OTQ0MjcxNjgsImV4cCI6MTQ5NDQyODA2OH0.95b3gD8n-lEQLlYl3HgYFhQjSIy3wLXgMorUJ-RzV3-NvPg57HtuNQ13h5zsC7pNh7u7UUi_3v4gHTpMb31Q3Q"
     }
-    
+```    
 In case of *invalid user credentials*, status 401 looks like:
- 
+``` json 
      {
        "message" : "Authentication failed",
        "errorCode" : 1010001,
@@ -185,19 +189,19 @@ In case of *invalid user credentials*, status 401 looks like:
        "httpStatus" : "UNAUTHORIZED",
        "timestamp" : "2017-05-08T13:29:53.674+0000"
      }
-    
+```    
 #### Heartbeat: `/api/heartbeat`
 
 ######  Access level: Public
 
 An example for how to use the authorization model (the role based permission model) is provided by the `heartbeat` endpoint:
-
+```
     curl -X GET \
          -H "Content-Type: application/json" \
          -H "Cache-Control: no-cache" \
          -H "Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJEMEU5RERBQS01OEI2LTRENjEtOTQ5Qy00NTg0NDNDQTZEMDUiLCJpc3MiOiJzcHJpbmctYm9vdC13ZWItc2tlbGV0b24iLCJpYXQiOjE0OTQ0MjcxNjgsImV4cCI6MTQ5NDQyODA2OH0.95b3gD8n-lEQLlYl3HgYFhQjSIy3wLXgMorUJ-RzV3-NvPg57HtuNQ13h5zsC7pNh7u7UUi_3v4gHTpMb31Q3Q" \
          "http://localhost:8080/api/heartbeat"
-
+```
 In case of successful authentication and authorization, the service responds the timestamp of service:
 
     {
@@ -207,15 +211,17 @@ In case of successful authentication and authorization, the service responds the
 #### Users: `/api/users`
 
 ###### Access level: Protected | Authority required: PERM_USERS_READ_ALL
-
+```
     curl -X GET \
          -H "Content-Type: application/json" \
          -H "Cache-Control: no-cache" \
          -H "Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJEMEU5RERBQS01OEI2LTRENjEtOTQ5Qy00NTg0NDNDQTZEMDUiLCJpc3MiOiJzcHJpbmctYm9vdC13ZWItc2tlbGV0b24iLCJpYXQiOjE0OTQ0MjcxNjgsImV4cCI6MTQ5NDQyODA2OH0.95b3gD8n-lEQLlYl3HgYFhQjSIy3wLXgMorUJ-RzV3-NvPg57HtuNQ13h5zsC7pNh7u7UUi_3v4gHTpMb31Q3Q" \
          "http://localhost:8080/api/users"
+```
 
 Returns all users mapped as view models:
 
+```
     [ {
       "id" : "B691BDDF-5EA5-470B-A286-B10DC1FABA60",
       "username" : "system",
@@ -229,6 +235,7 @@ Returns all users mapped as view models:
       "roles" : [ "2F17AF79-50BA-433B-B7B3-3649436BA9E2", "30193EDC-96BF-47F1-BA97-E8C37709E1AC", "E5B83654-635C-4011-AEE1-1DFB8695A5C1", "7D7D15DC-9060-4C1D-903A-BF08F8ECEFF5" ],
       "clients" : [ "9FE7E40D-07E8-4F2E-97AB-617C0C8EBD36" ]
     }, ... ]
+```
 
 ## Roadmap
 
