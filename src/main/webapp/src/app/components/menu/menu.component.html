@@ -1,0 +1,19 @@
+<nav class="navbar navbar-default navbar-fixed-top">
+  <div class="navbar-header">
+    <button type="button" class="navbar-toggle"  [class.collapsed]="!this.isMobileActive" data-toggle="collapse" data-target="#navbar"
+             aria-expanded="false" aria-controls="navbar" #mobileBtnId (click)="click()">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="#"> <img class="brand" src="../../../assets/skeleton%20banner.svg">
+    </a>
+  </div>
+  <div id="navbar" #navbar class="navbar-collapse collapse" [class.in]="this.isMobileActive" >
+    <ul class="nav navbar-nav">
+      <li><a href="https://github.com/kyr0/spring-boot-web-skeleton/tree/development#spring-boot-web-skeleton" target="_blank">Documentation</a></li>
+      <li><a href="https://github.com/kyr0/spring-boot-web-skeleton" target="_blank">GitHub</a></li>
+    </ul>
+  </div>
+</nav>

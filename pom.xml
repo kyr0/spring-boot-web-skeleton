@@ -311,7 +311,27 @@
         <defaultGoal>spring-boot:run</defaultGoal>
 
         <plugins>
-
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>src/main/webapp/</directory>
+                            <includes>
+                                <include>dist/**</include>
+                            </includes>
+                            <excludes>
+                                <exclude>src/**</exclude>
+                                <exclude>e2e/**</exclude>
+                                <exclude>*.js</exclude>
+                                <exclude>*.json</exclude>
+                            </excludes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
             <!-- Enforce specific environment tooling versions -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -366,7 +386,7 @@
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
                 <configuration>
-                    <workingDirectory>src/main/webapp/libs</workingDirectory>
+                    <workingDirectory>src/main/webapp</workingDirectory>
                 </configuration>
                 <version>${build.tools.frontend-maven-plugin.version}</version>
                 <executions>
@@ -390,6 +410,16 @@
                             <arguments>install --force</arguments>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>npm run build</id>
+                        <goals>
+                            <goal>yarn</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <arguments>build --${spring.profiles.active}</arguments>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
 
@@ -402,7 +432,7 @@
 
                     <execution>
                         <id>copy-resources</id>
-                        <phase>validate</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
@@ -419,11 +449,7 @@
                             <outputDirectory>${basedir}/target/classes/static</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>src/main/webapp</directory>
-                                    <excludes>
-                                        <exclude>libs/node/**</exclude>
-                                        <exclude>libs/package.json</exclude>
-                                    </excludes>
+                                    <directory>src/main/webapp/dist</directory>
                                 </resource>
                             </resources>
                         </configuration>

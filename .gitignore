@@ -73,13 +73,17 @@ src/main/resources/application.properties
 ######################
 # Node
 ######################
-node/
-node_tmp/
-node_modules/
-npm-debug.log.*
-
+src/main/webapp/node/
+src/main/webapp/node_tmp/
+src/main/webapp/node_modules/
+src/main/webapp/npm-debug.log.*
 
 ######################
-# SASS
+# Yarn
 ######################
-.sass-cache/
+src/main/webapp/yarn.lock
+
+# compiled output
+src/main/webapp/dist
+src/main/webapp/tmp
+src/main/webapp/out-tsc

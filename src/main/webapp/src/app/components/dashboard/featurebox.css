@@ -1,0 +1,101 @@
+/*Feature Box
+---------------------------------- */
+.feature-box,
+.feature-box-2 {
+  margin-bottom: 30px;
+}
+
+.feature-box .title,
+.feature-box-2 .title {
+  margin-top: 0px;
+}
+
+/*style-1*/
+.feature-box h3 {
+  margin-top: 0;
+}
+
+.feature-box .icon {
+  margin-bottom: 10px;
+}
+
+.feature-box p {
+  clear: both;
+  margin-bottom: 15px;
+}
+
+.feature-box:not(.shadow):hover .icon {
+  opacity: 0.8;
+  filter: alpha(opacity=80);
+}
+
+/*style-2*/
+.feature-box-2 {
+  position: relative;
+}
+
+.feature-box-2 .icon {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+
+.feature-box-2 .icon.without-bg {
+  width: 0;
+  height: 0;
+}
+
+.feature-box-2.boxed {
+  border: 1px solid #f1f1f1;
+}
+
+.feature-box-2.boxed .icon {
+  left: 20px;
+  top: 20px;
+}
+
+.feature-box-2 .icon {
+  -webkit-transition: all 0.2s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+
+.feature-box-2 .body {
+  margin-left: 62px;
+}
+
+.feature-box-2:hover .icon {
+  opacity: 0.8;
+  filter: alpha(opacity=80);
+}
+
+.feature-box-2.right .body {
+  margin-right: 62px;
+  margin-left: 0px;
+  text-align: right;
+}
+
+.feature-box-2.right .icon {
+  left: auto;
+  right: 0px;
+}
+
+.feature-box-2.right .icon.without-bg {
+  right: 40px;
+}
+
+.feature-box-2.boxed.right .icon {
+  left: auto;
+  right: 20px;
+}
+
+.feature-box-2.boxed.right .icon.without-bg {
+  right: 60px;
+}
+
+/* Medium devices (desktops, tablets less than 991px) */
+@media (max-width: 991px) {
+  .feature-box-2:not(.boxed) {
+    padding-bottom: 0;
+  }
+}
