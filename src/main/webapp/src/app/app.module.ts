@@ -7,11 +7,13 @@ import {AppComponent} from './app.component';
 import {MenuComponent} from './components/menu/menu.component';
 import {DashboardComponent} from './components/dashboard/dashboard.component';
 import {MarkdownModule} from 'angular2-markdown';
+import {FooterComponent} from './components/footer/footer.component';
 
 @NgModule({
     declarations: [
         AppComponent,
         MenuComponent,
+        FooterComponent,
         DashboardComponent
     ],
     imports: [

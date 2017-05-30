@@ -1,0 +1,29 @@
+.footer{
+    background-color: #2d2d2d;
+    padding-top: 2.5em;
+    padding-bottom: 2.5em;
+    color: white;
+}
+.profilImg{
+    height: 80px;
+    width: 80px;
+    border-radius: 50%;
+    padding-top: 15px;
+}
+.floating-box {
+    float: left;
+}
+.address{
+    margin-left: 15px;
+    margin-top: 19px;
+}
+.technologie > img{
+    max-height: 100px;
+    max-width: 200px;
+    text-align: center;
+}
+
+.technologie {
+    height: 150px;
+
+}

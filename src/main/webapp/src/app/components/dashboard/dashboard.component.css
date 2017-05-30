@@ -34,7 +34,7 @@ TERMINAL CSS
 }
 .shell-wrap {
   width: 100%;
-  margin: 100px auto 30px auto;
+  margin: 50px auto 60px auto;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
 
   -webkit-border-radius: 3px;
